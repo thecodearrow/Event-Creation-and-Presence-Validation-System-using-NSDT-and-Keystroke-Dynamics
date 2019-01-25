@@ -58,8 +58,8 @@ class Attendance extends Component {
         return { course }
     }
 
-    createData = (name, calories, fat) => {
-        return { name, calories, fat };
+    createData = (regNo, name, present) => {
+        return { regNo, name, present };
     }
 
     rows = [

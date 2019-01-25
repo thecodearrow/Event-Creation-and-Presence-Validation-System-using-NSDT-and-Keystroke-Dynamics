@@ -38,14 +38,48 @@ class Register extends Component {
         this.state = {
             facultyEmail:'',
             password:'',
-            cpassword:''
+            cpassword:'',
+            errEmail: false,
+            errPassword: false,
+            errCPassword: false
         }
     }
+
     handleChange = (event) => {
         this.setState({
             [event.target.name]: event.target.value
         });
     }
+
+    verifyEmail = () => {
+        let emailREGEX =  /^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(ktr.srmuniv)\.ac.in$/g
+        return (emailREGEX.test(this.state.facultyEmail));
+    } 
+
+    handleSubmit = (event) => {
+        event.preventDefault();
+        let pErrFlag = this.state.password.length < 8;
+        let cErrFlag = this.state.password !== this.state.cpassword;
+        let eErrFlag = !this.verifyEmail();
+        if (eErrFlag || pErrFlag || cErrFlag) {
+            console.log("HERE");
+            this.setState({
+                facultyEmail: eErrFlag ? '' : this.state.facultyEmail,
+                password: (pErrFlag || cErrFlag) ? '' : this.state.password,
+                cpassword: (pErrFlag || cErrFlag) ? '' : this.state.cpassword, 
+                errEmail: eErrFlag,
+                errPassword: pErrFlag || cErrFlag,
+                errCPassword: cErrFlag || pErrFlag
+            })
+        }
+        else {
+            //make auth req .then(
+            let url = window.location.href;
+            window.location.href = url.substring(0,url.length-8);
+            // )
+        }
+    }
+
     render(){
         const { classes } = this.props;
         return(
@@ -70,6 +104,8 @@ class Register extends Component {
                                     name="facultyEmail"
                                     id="Faculty E-Mail"
                                     label="Faculty E-Mail"
+                                    error={this.state.errEmail}
+                                    value={this.state.facultyEmail}
                                     placeholder="Faculty E-Mail"
                                     onChange={(e)=>{this.handleChange(e)}}
                                     className={classes.textField}
@@ -80,6 +116,8 @@ class Register extends Component {
                                     type="password"
                                     id="Password"
                                     label="Password"
+                                    error={this.state.errPassword}
+                                    value={this.state.password}
                                     placeholder="Password"
                                     onChange={(e)=>{this.handleChange(e)}}
                                     className={classes.textField}
@@ -90,6 +128,8 @@ class Register extends Component {
                                     type="password"
                                     id="CPassword"
                                     label="Confirm Password"
+                                    error={this.state.errCPassword}
+                                    value={this.state.cpassword}
                                     placeholder="Confirm Password"
                                     onChange={(e)=>{this.handleChange(e)}}
                                     className={classes.textField}
@@ -99,6 +139,7 @@ class Register extends Component {
                                     variant="contained" 
                                     href="#contained-buttons" 
                                     color="primary" 
+                                    onClick = { e => {this.handleSubmit(e)}}
                                     className={classes.button}
                                 >
                                     Register

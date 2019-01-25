@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 
-function SimpleTable(props) {
+function StudentTable(props) {
     const { classes } = props;
 
     return <Paper className={classes.root}>
@@ -31,19 +31,19 @@ function SimpleTable(props) {
           </TableHead>
           <TableBody>
             {props.tdata.map((row,id) => <TableRow key={id}>
-                <TableCell style={{ color: props.tdata.fat ? 'green':'red', textTransform:'uppercase'}} component="th" scope="row">
-                  {row.name}
+                <TableCell style={{ color: props.tdata.present ? 'green':'red', textTransform:'uppercase'}} component="th" scope="row">
+                  {row.regNo}
                 </TableCell>
-                <TableCell style={{ color: row.fat ? 'green':'red' , textTransform:'uppercase'}} align="left">{row.calories}</TableCell>
-                <TableCell style={{ color: row.fat ? 'green':'red' , textTransform:'uppercase'}} align="left">{String(row.fat)}</TableCell>
+                <TableCell style={{ color: row.present ? 'green':'red' , textTransform:'uppercase'}} align="left">{row.name}</TableCell>
+                <TableCell style={{ color: row.present ? 'green':'red' , textTransform:'uppercase'}} align="left">{String(row.present)}</TableCell>
               </TableRow>)}
           </TableBody>
         </Table>
       </Paper>;
 }
 
-SimpleTable.propTypes = {
+StudentTable.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SimpleTable);
+export default withStyles(styles)(StudentTable);

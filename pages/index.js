@@ -7,6 +7,7 @@ import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
+import { throws } from 'assert';
 
 const styles = theme => ({
     head: {
@@ -24,7 +25,6 @@ const styles = theme => ({
     textField: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
-        width: '100%',
     },
     button: {
         marginTop: theme.spacing.unit * 2,
@@ -37,7 +37,9 @@ class Login extends Component {
         super();
         this.state = {
             facultyEmail: '',
-            password: ''
+            password: '',
+            errEmail: false,
+            errPassword: false
         }
     }
     handleChange = (event) => {
@@ -45,6 +47,30 @@ class Login extends Component {
             [event.target.name]: event.target.value
         });
     }
+
+    verifyEmail = () => {
+        let emailREGEX =  /^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(ktr.srmuniv)\.ac.in$/g
+        return (emailREGEX.test(this.state.facultyEmail));
+    } 
+
+    handleSubmit = (event) => {
+        event.preventDefault();
+        let pErrFlag = this.state.password.length < 8;
+        let eErrFlag = !this.verifyEmail();
+        if(eErrFlag || pErrFlag){
+            this.setState({
+                facultyEmail: eErrFlag ? '' : this.state.facultyEmail,
+                password: pErrFlag ? '' : this.state.password,
+                errEmail: eErrFlag,
+                errPassword: pErrFlag
+            })
+        }
+        else{
+            //make auth req
+            window.location.href += "dashboard"
+        }
+    }
+
     render() {
         const { classes } = this.props;
         return (
@@ -69,7 +95,10 @@ class Login extends Component {
                                     name="facultyEmail"
                                     id="Faculty E-Mail"
                                     label="Faculty E-Mail"
+                                    error={this.state.errEmail}
                                     placeholder="Faculty E-Mail"
+                                    fullWidth={true}
+                                    value={this.state.facultyEmail}
                                     onChange={(e) => { this.handleChange(e) }}
                                     className={classes.textField}
                                     margin="normal"
@@ -79,7 +108,10 @@ class Login extends Component {
                                     type="password"
                                     id="Password"
                                     label="Password"
+                                    error={this.state.errPassword}
                                     placeholder="Password"
+                                    fullWidth={true}
+                                    value={this.state.password}
                                     onChange={(e) => { this.handleChange(e) }}
                                     className={classes.textField}
                                     margin="normal"
@@ -88,6 +120,7 @@ class Login extends Component {
                                     variant="contained"
                                     href="#contained-buttons"
                                     color="primary"
+                                    onClick = {(e) => {this.handleSubmit(e)}}
                                     className={classes.button}
                                 >
                                     Login
