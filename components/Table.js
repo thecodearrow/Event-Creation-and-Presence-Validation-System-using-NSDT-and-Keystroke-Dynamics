@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -17,10 +17,16 @@ const styles = theme => ({
 });
 
 
-function StudentTable(props) {
-    const { classes } = props;
+class StudentTable extends Component {
+  constructor() {
+    super();
+  }
 
-    return <Paper className={classes.root}>
+  render() {
+    const { classes } = this.props;
+    console.log(this);
+    return (
+      <Paper className={classes.root}>
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
@@ -30,17 +36,45 @@ function StudentTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.tdata.map((row,id) => <TableRow key={id}>
-                <TableCell style={{ color: props.tdata.present ? 'green':'red', textTransform:'uppercase'}} component="th" scope="row">
+            {this.props.tdata.map((row, id) => (
+              <TableRow key={id}>
+                <TableCell
+                  style={{
+                    //color: props.tdata.present ? "green" : "red",
+                    textTransform: "uppercase"
+                  }}
+                  component="th"
+                  scope="row"
+                >
                   {row.regNo}
                 </TableCell>
-                <TableCell style={{ color: row.present ? 'green':'red' , textTransform:'uppercase'}} align="left">{row.name}</TableCell>
-                <TableCell style={{ color: row.present ? 'green':'red' , textTransform:'uppercase'}} align="left">{String(row.present)}</TableCell>
-              </TableRow>)}
+                <TableCell
+                  style={{
+                    color: row.present ? "green" : "red",
+                    textTransform: "uppercase"
+                  }}
+                  align="left"
+                >
+                  {row.name}
+                </TableCell>
+                <TableCell
+                  style={{
+                    color: row.present ? "green" : "red",
+                    textTransform: "uppercase"
+                  }}
+                  align="left"
+                >
+                  {String(row.present)}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
-      </Paper>;
+      </Paper>
+    );
+  }
 }
+
 
 StudentTable.propTypes = {
     classes: PropTypes.object.isRequired,

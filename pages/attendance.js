@@ -7,6 +7,7 @@ import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import ChirpConnect from "chirp-js-sdk";
 import Divider from '@material-ui/core/Divider';
+import {loadFirebase} from "../lib/db";
 
 const styles = theme => ({
     head: {
@@ -53,49 +54,50 @@ class Attendance extends Component {
         super();
     }
 
-    static async getInitialProps(context) {
-        const course = context.query;
-        return { course }
-    }
+    static async getInitialProps() {
+            let firebase = await loadFirebase();
+            let data = [];
+            let result = await firebase.firestore().collection("courses")
+            .get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    data.push({
+                        id: doc.id,
+                        data: doc.data()
+                    })
+                });
+            });
 
-    createData = (regNo, name, present) => {
-        return { regNo, name, present };
+        return {
+            courseFB: result
+        }
     }
-
-    rows = [
-        this.createData("RA1511008010127", "Warren White", false),
-        this.createData("RA1511008010125", "Mohammed Moiz", false),
-        this.createData('RA1511008010148', 'Prashanth Vaidya', false),
-        this.createData('RA1511008010136', 'Vasu Garg', false)
-    ];
 
     componentDidMount() {
-        const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
-        const payload = new Uint8Array([1, 2, 3, 4])
-        chirp.send(payload, err => err ?
-            console.error("An error occured") :
-            true
-        )
+        // const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
+        // const payload = new Uint8Array([1, 2, 3, 4])
+        // chirp.send(payload, err => err ?
+        //     console.error("An error occured") :
+        //     true
+        // )
     }
 
-    render() {
+    async render() {
         const { classes } = this.props;
-        const course = this.props.course;
         return <React.Fragment>
             <Navbar page="Attendance" />
             <Typography component="h2" variant="h2" gutterBottom className={classes.mainHeader}>
-              {course.code}
+              {course.facultyName}
             </Typography>
             <Typography component="h5" variant="h5" gutterBottom className={classes.sub1Header}>
-              {course.name}
+              {course.facultyName}
             </Typography>
             <Typography component="h6" variant="h6" gutterBottom className={classes.sub2Header}>
-              Semester {course.sem} | {course.year}
+              Semester 
             </Typography>
             <Divider className={classes.divider} />
             <Grid className={classes.grid} container spacing={0} justify="space-around">
               <Grid item>
-                <RollTable tdata={this.rows} />
+                <RollTable tdata={this.courseFB} />
               </Grid>
             </Grid>
           </React.Fragment>;

@@ -33,7 +33,7 @@ class MyApp extends App {
                     generateClassName={this.pageContext.generateClassName}
                 >
                     {/* MuiThemeProvider makes the theme available down the React
-              tree thanks to React context. */}
+                    tree thanks to React context. */}
                     <MuiThemeProvider
                         theme={this.pageContext.theme}
                         sheetsManager={this.pageContext.sheetsManager}
