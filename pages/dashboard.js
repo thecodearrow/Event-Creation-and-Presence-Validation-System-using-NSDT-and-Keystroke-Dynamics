@@ -7,6 +7,8 @@ import Navbar from '../components/Navbar';
 import ClassCard from '../components/ClassCard';
 import Divider from '@material-ui/core/Divider';
 
+import { loadFirebase } from '../lib/db';
+
 const styles = theme => ({
     head: {
         textAlign: 'center'
@@ -38,7 +40,8 @@ const styles = theme => ({
     grid: {
         flexGrow: 1,
         marginTop: '5vh',
-        padding: '0 5rem'
+        padding: '0 5rem',
+        minHeight: '100vh'
     }
 });
 
@@ -46,41 +49,58 @@ class Dashboard extends Component {
     constructor() {
         super();
         this.state = {
-            facultyEmail: '',
-            password: ''
+           courses: [{
+               facultyName: ''
+           }]
         }
     }
-    handleChange = (event) => {
+
+    async componentDidMount(){
+        let tempState = []
+        let result = await loadFirebase()
+        .firestore()
+        .collection('courses')
+        .get()
+        .then( results => 
+            results.forEach(doc => {
+                tempState.push({
+                    courseCode: doc.id,
+                    ...doc.data()
+                })
+            })
+        )
         this.setState({
-            [event.target.name]: event.target.value
-        });
+            courses : tempState
+        })
     }
+
     render() {
         const { classes } = this.props;
-        return <React.Fragment>
+        return (<React.Fragment>
             <Navbar page="Dashboard" />
-            <Typography component="h2" variant="h2" gutterBottom className={classes.mainHeader}>
-              Welcome!
+            <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
+              Welcome<em>{`, ${this.state.courses[0].facultyName}`}</em>
             </Typography>
             <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
               Classes for today
             </Typography>
             <Divider className={classes.divider} />
             <Grid className={classes.grid} container spacing={24} justify="space-around">
-              <Grid item>
-                <ClassCard courseCode="IT303J" courseName="Computer Networks" semester="2" year="2019" students={24}/>
-              </Grid>
-              <Grid item>
-                <ClassCard courseCode="IT402J" courseName="Integrative Programming & Technology" semester="7" year="2019" students={54}/>
-              </Grid>
-              <Grid item>
-                <ClassCard courseCode="IT301J" courseName="Operating Systems" semester="5" year="2019" students={67}/>
-              </Grid>
-              <Grid item>
-                <ClassCard courseCode="IT302J" courseName="Database Management Systems" semester="5" year="2019" students={45}/>
-              </Grid>
+                {
+                    this.state.courses.length > 1 ? this.state.courses.map( (course,index) => (
+                    <Grid item key={index}>
+                        <ClassCard 
+                            courseCode={course.courseCode} 
+                            courseName={course.courseName} 
+                            semester={course.semester} 
+                            year={course.year}   
+                            students={course.students.length}
+                            facultyName={course.facultyName}
+                        />
+                    </Grid>)) : true
+                }
             </Grid>
-          </React.Fragment>;
+        </React.Fragment>);
     }
 }
 

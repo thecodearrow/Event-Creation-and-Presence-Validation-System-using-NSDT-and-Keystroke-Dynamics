@@ -35,7 +35,7 @@ function ClassCard(props) {
     return <Card className={classes.card}>
         <CardContent>
           <Typography className={classes.title} color="textSecondary" gutterBottom>
-            {props.courseCode}
+            {props.courseCode.substr(0,6)}
           </Typography>
           <Typography variant="h5" component="h2">
             {props.courseName}
@@ -46,7 +46,7 @@ function ClassCard(props) {
           <Typography component="p">{props.students} students</Typography>
         </CardContent>
         <CardActions>
-            <Link as={`/att/${props.courseCode}`} href={`/attendance?${courseString}`}>
+            <Link href={`/attendance?${courseString}`}>
                 <Button size="small" color="primary">
                     Take attendance
                 </Button>

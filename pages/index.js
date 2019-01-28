@@ -7,7 +7,6 @@ import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
-import { throws } from 'assert';
 
 const styles = theme => ({
     head: {
