@@ -23,27 +23,18 @@ class StudentTable extends Component {
   constructor() {
     super();
     this.state = {
-      courses: [
-        {
-          id: '',
-          facultyName: '',
-          students: [{
-            register: '0000',
-            name: 'WARREN',
-            present: [true]
-          }]
-        }]
+      courses: []
     }
   }
   
   componentDidMount() {
     loadFirebase().firestore().collection('courses').onSnapshot((snap) => {
-        var courseList = [];
+        var courses = [];
         snap.docChanges().forEach( (docChange,index) => {
           switch(docChange.type){
 
             case 'added': {
-              courseList.push({
+              courses.push({
                 id: docChange.doc.id,
                 ...docChange.doc.data()
               });
@@ -52,7 +43,7 @@ class StudentTable extends Component {
             case 'modified': {
               let localCourseList = this.state.courses;          
               if(docChange.doc.id === this.props.courseCode){
-                courseList = localCourseList.map( course => {
+                courses = localCourseList.map( course => {
                   if(course.id === docChange.doc.id){
                     return {
                       id: docChange.doc.id,
@@ -65,14 +56,14 @@ class StudentTable extends Component {
               break;
             }
             default: {
-              courseList = this.state;
+              courses = this.state;
             }
 
           }
         }
       )
       this.setState({
-        courses : courseList
+        courses
       })
     }, err => {
       console.error(err);
@@ -106,7 +97,7 @@ class StudentTable extends Component {
               <TableRow key={id}>
                 <TableCell
                   style={{
-                    color: student.present[0] ? "green" : "red",
+                    color: student.present[this.props.dayIndex] ? "green" : "red",
                     textTransform: "uppercase"
                   }}
                   component="th"
@@ -116,7 +107,7 @@ class StudentTable extends Component {
                 </TableCell>
                 <TableCell
                   style={{
-                    color: student.present[0] ? "green" : "red",
+                    color: student.present[this.props.dayIndex] ? "green" : "red",
                     textTransform: "uppercase"
                   }}
                   align="left"
@@ -125,12 +116,12 @@ class StudentTable extends Component {
                 </TableCell>
                 <TableCell
                   style={{
-                    color: student.present[0] ? "green" : "red",
+                    color: student.present[this.props.dayIndex] ? "green" : "red",
                     textTransform: "uppercase"
                   }}
                   align="left"
                 >
-                  {String(student.present[0])}
+                  {String(student.present[this.props.dayIndex])}
                 </TableCell>
               </TableRow>
             ))}

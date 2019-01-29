@@ -77,6 +77,9 @@ class Attendance extends Component {
         const courseDetails = {
             ...this.props.query
         }
+
+        const numberOfDays = Math.floor(((new Date(courseDetails.date).getTime()-new Date(2019,0,30).getTime())/(24*60*60*1000)));
+
         return (
         <React.Fragment>
             <Navbar page="Attendance" />
@@ -112,7 +115,7 @@ class Attendance extends Component {
                 justify="space-around"
             >
             <Grid item>
-                <RollTable courseCode={courseDetails.code} tdata={this.props.courses} />
+                <RollTable dayIndex={numberOfDays} courseCode={courseDetails.code} tdata={this.props.courses} />
             </Grid>
             </Grid>
         </React.Fragment>

@@ -13,7 +13,6 @@ class MyApp extends App {
     }
 
     componentDidMount() {
-        // Remove the server-side injected CSS.
         const jssStyles = document.querySelector('#jss-server-side');
         if (jssStyles && jssStyles.parentNode) {
             jssStyles.parentNode.removeChild(jssStyles);
@@ -27,21 +26,19 @@ class MyApp extends App {
                 <Head>
                     <title>Sound Shinobi</title>
                 </Head>
-                {/* Wrap every page in Jss and Theme providers */}
+                {}
                 <JssProvider
                     registry={this.pageContext.sheetsRegistry}
                     generateClassName={this.pageContext.generateClassName}
                 >
-                    {/* MuiThemeProvider makes the theme available down the React
-                    tree thanks to React context. */}
+                    {}
                     <MuiThemeProvider
                         theme={this.pageContext.theme}
                         sheetsManager={this.pageContext.sheetsManager}
                     >
-                        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+                        {}
                         <CssBaseline />
-                        {/* Pass pageContext to the _document though the renderPage enhancer
-                        to render collected styles on server-side. */}
+                        {}
                         <Component pageContext={this.pageContext} {...pageProps} />
                     </MuiThemeProvider>
                 </JssProvider>

@@ -48,30 +48,25 @@ const styles = theme => ({
 class Dashboard extends Component {
     constructor() {
         super();
-        this.state = {
-           courses: [{
-               facultyName: ''
-           }]
-        }
     }
 
-    async componentDidMount(){
-        let tempState = []
+    static async getInitialProps(){
+        let courses = []
         let result = await loadFirebase()
-        .firestore()
-        .collection('courses')
-        .get()
-        .then( results => 
-            results.forEach(doc => {
-                tempState.push({
-                    courseCode: doc.id,
-                    ...doc.data()
+            .firestore()
+            .collection('courses')
+            .get()
+            .then(results =>
+                results.forEach(doc => {
+                    courses.push({
+                        courseCode: doc.id,
+                        ...doc.data()
+                    })
                 })
-            })
-        )
-        this.setState({
-            courses : tempState
-        })
+            )
+        return {
+            courses
+        }
     }
 
     render() {
@@ -79,7 +74,7 @@ class Dashboard extends Component {
         return (<React.Fragment>
             <Navbar page="Dashboard" />
             <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
-              Welcome<em>{`, ${this.state.courses[0].facultyName}`}</em>
+              Welcome<em>{`, ${this.props.courses[0].facultyName}`}</em>
             </Typography>
             <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
               Classes for today
@@ -87,7 +82,7 @@ class Dashboard extends Component {
             <Divider className={classes.divider} />
             <Grid className={classes.grid} container spacing={24} justify="space-around">
                 {
-                    this.state.courses.length > 1 ? this.state.courses.map( (course,index) => (
+                    this.props.courses.length > 1 ? this.props.courses.map( (course,index) => (
                     <Grid item key={index}>
                         <ClassCard 
                             courseCode={course.courseCode} 
