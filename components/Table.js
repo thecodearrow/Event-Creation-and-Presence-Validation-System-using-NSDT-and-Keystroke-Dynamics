@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import { loadFirebase } from "../lib/db";
+import { loadFirebase } from "../lib/firebase_client";
 
 const styles = theme => ({
     root: {
@@ -22,13 +22,14 @@ const styles = theme => ({
 class StudentTable extends Component {
   constructor() {
     super();
+    this.FBRef = loadFirebase().firestore().collection('courses');
     this.state = {
       courses: []
     }
   }
   
   componentDidMount() {
-    loadFirebase().firestore().collection('courses').onSnapshot((snap) => {
+    this.unsubscribe = this.FBRef.onSnapshot( (snap) => {
         var courses = [];
         snap.docChanges().forEach( (docChange,index) => {
           switch(docChange.type){
@@ -40,6 +41,7 @@ class StudentTable extends Component {
               });
               break;
             }
+
             case 'modified': {
               let localCourseList = this.state.courses;          
               if(docChange.doc.id === this.props.courseCode){
@@ -55,6 +57,7 @@ class StudentTable extends Component {
               }
               break;
             }
+
             default: {
               courses = this.state;
             }
@@ -68,6 +71,10 @@ class StudentTable extends Component {
     }, err => {
       console.error(err);
     })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   render() {
@@ -121,7 +128,10 @@ class StudentTable extends Component {
                   }}
                   align="left"
                 >
-                  {String(student.present[this.props.dayIndex])}
+                  { (String(student.present[this.props.dayIndex]) === 'undefined') ? 
+                      'Waiting' : 
+                      String(student.present[this.props.dayIndex]) 
+                  }
                 </TableCell>
               </TableRow>
             ))}

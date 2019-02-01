@@ -30,8 +30,7 @@ function ClassCard(props) {
     const { classes } = props;
     const courseString = "&code=" + props.courseCode +"&name=" + encodeURIComponent(props.courseName) + 
                 "&sem=" + props.semester + 
-                "&year=" + props.year + 
-                "&date=" + new Date().toString();
+                "&year=" + props.year;
     return <Card className={classes.card}>
         <CardContent>
           <Typography className={classes.title} color="textSecondary" gutterBottom>

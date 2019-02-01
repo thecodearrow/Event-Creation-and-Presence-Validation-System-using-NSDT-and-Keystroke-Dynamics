@@ -7,7 +7,9 @@ import Navbar from '../components/Navbar';
 import ClassCard from '../components/ClassCard';
 import Divider from '@material-ui/core/Divider';
 
-import { loadFirebase } from '../lib/db';
+import firebase from "firebase/app";
+import "firebase/auth";
+import { loadFirebase } from '../lib/firebase_client';
 
 const styles = theme => ({
     head: {
@@ -41,16 +43,20 @@ const styles = theme => ({
         flexGrow: 1,
         marginTop: '5vh',
         padding: '0 5rem',
-        minHeight: '100vh'
+        minHeight: '110%'
     }
 });
 
 class Dashboard extends Component {
     constructor() {
         super();
+        this.state = {
+            user: '',
+        }
     }
 
-    static async getInitialProps(){
+    static async getInitialProps({req, query}){
+        const user = req && req.session ? req.session.decodedToken : null;
         let courses = []
         let result = await loadFirebase()
             .firestore()
@@ -65,36 +71,53 @@ class Dashboard extends Component {
                 })
             )
         return {
-            courses
+            courses,
+            user
         }
+    }
+
+
+    async componentDidMount() {
+        console.log(await loadFirebase().auth().currentUser);
+    }
+
+    handleLogout() {
+        loadFirebase().auth().signOut()
     }
 
     render() {
         const { classes } = this.props;
         return (<React.Fragment>
-            <Navbar page="Dashboard" />
-            <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
-              Welcome<em>{`, ${this.props.courses[0].facultyName}`}</em>
-            </Typography>
-            <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
-              Classes for today
-            </Typography>
-            <Divider className={classes.divider} />
-            <Grid className={classes.grid} container spacing={24} justify="space-around">
-                {
-                    this.props.courses.length > 1 ? this.props.courses.map( (course,index) => (
-                    <Grid item key={index}>
-                        <ClassCard 
-                            courseCode={course.courseCode} 
-                            courseName={course.courseName} 
-                            semester={course.semester} 
-                            year={course.year}   
-                            students={course.students.length}
-                            facultyName={course.facultyName}
-                        />
-                    </Grid>)) : true
-                }
-            </Grid>
+            <Navbar page="Dashboard" handleLogout={this.handleLogout.bind(this)}/>
+            {   this.state.user !== null || this.state.user !== undefined ?
+                (   <React.Fragment>
+                        <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
+                            Welcome<em>{`, ${this.props.courses[0].facultyName}`}</em>
+                        </Typography>
+
+                        <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
+                            Classes for Today
+                        </Typography>
+                        <Divider className={classes.divider} />
+                        <Grid className={classes.grid} container spacing={24} justify="space-around">
+                            {
+                                this.props.courses.length > 1 ? this.props.courses.map( (course,index) => (
+                                <Grid item key={index}>
+                                    <ClassCard 
+                                        courseCode={course.courseCode} 
+                                        courseName={course.courseName} 
+                                        semester={course.semester} 
+                                        year={course.year}   
+                                        students={course.students.length}
+                                        facultyName={course.facultyName}
+                                    />
+                                </Grid>)) : true
+                            }
+                        </Grid>
+                    </React.Fragment>
+                    ) : 
+                    true
+            }
         </React.Fragment>);
     }
 }

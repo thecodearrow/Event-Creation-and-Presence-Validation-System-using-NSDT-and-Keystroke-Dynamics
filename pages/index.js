@@ -8,6 +8,12 @@ import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 
+import { loadFirebase } from '../lib/firebase_client';
+import firebase from "firebase/app";
+import "firebase/auth";
+import "isomorphic-unfetch";
+
+
 const styles = theme => ({
     head: {
         textAlign: 'center'
@@ -32,42 +38,50 @@ const styles = theme => ({
 });
 
 class Login extends Component {
+
+    static async getInitialProps({ req, query }) {
+        const user = req && req.session ? req.session.decodedToken : null
+        return { user }
+    }
+
     constructor() {
         super();
         this.state = {
-            facultyEmail: '',
-            password: '',
-            errEmail: false,
-            errPassword: false
+            user: '',
         }
     }
-    handleChange = (event) => {
-        this.setState({
-            [event.target.name]: event.target.value
-        });
+
+    componentDidMount() {
+
+       loadFirebase().auth().onAuthStateChanged(user => {
+            if (user) {
+                this.setState({ user: user })
+                return user
+                    .getIdToken()
+                    .then(token => {
+                        return fetch('/api/login', {
+                            method: 'POST',
+                            headers: new Headers({ 'Content-Type': 'application/json' }),
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ token })
+                        })
+                    })
+                    .then(res => {
+                        console.log("Logged in!",res);
+                    })
+            } else {
+                console.log("NOT LOGGED IN")
+            }
+        })
+
     }
 
-    verifyEmail = () => {
-        let emailREGEX =  /^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(ktr.srmuniv)\.ac.in$/g
-        return (emailREGEX.test(this.state.facultyEmail));
-    } 
+    handleLogin() {
+        loadFirebase().auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    }
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-        let pErrFlag = this.state.password.length < 8;
-        let eErrFlag = !this.verifyEmail();
-        if(eErrFlag || pErrFlag){
-            this.setState({
-                facultyEmail: eErrFlag ? '' : this.state.facultyEmail,
-                password: pErrFlag ? '' : this.state.password,
-                errEmail: eErrFlag,
-                errPassword: pErrFlag
-            })
-        }
-        else{
-            //make auth req
-            window.location.href += "dashboard"
-        }
+    handleLogout() {
+        loadFirebase().auth().signOut()
     }
 
     render() {
@@ -89,7 +103,7 @@ class Login extends Component {
                             <Typography variant="h5" component="h5" className={classes.head}>
                                 Faculty Login
                             </Typography>
-                            <form className={classes.container} noValidate autoComplete="off">
+                            {/* <form className={classes.container} noValidate autoComplete="off">
                                 <TextField
                                     name="facultyEmail"
                                     id="Faculty E-Mail"
@@ -114,17 +128,23 @@ class Login extends Component {
                                     onChange={(e) => { this.handleChange(e) }}
                                     className={classes.textField}
                                     margin="normal"
-                                />
+                                /> */}
                                 <Button
                                     variant="contained"
-                                    href="#contained-buttons"
                                     color="primary"
-                                    onClick = {(e) => {this.handleSubmit(e)}}
+                                    onClick = {(e) => {this.handleLogin()}}
                                     className={classes.button}
                                 >
-                                    Login
+                                    Login with Google
                                 </Button>
-                            </form>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick = {(e) => {this.handleLogout()}}
+                                    className={classes.button}
+                                >
+                                    Logout
+                                </Button>
                         </Paper>
                     </Grid>
                     <Grid item xs={1} sm={4} />

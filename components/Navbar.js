@@ -7,6 +7,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from "@material-ui/core/Button";
 
+import { loadFirebase } from '../lib/firebase_client';
+
 const styles = {
     root: {
         flexGrow: 1,
@@ -19,7 +21,7 @@ const styles = {
 
 function NavBar(props) {
     const { classes } = props;
-    const page = props.page === "Login" ? "Register" : (props.page !== "Register" ? "Logout" : "Login"); 
+    const page = props.page === "Login" ? '' : "Logout"; 
     const link = (page === "Login" || page === "Logout" ? '' : page.toLowerCase());
     return <div className={classes.root}>
         <AppBar position="static" color="primary">
@@ -27,11 +29,14 @@ function NavBar(props) {
             <Typography variant="h6" color="inherit" className={classes.flex}>
               Sound Shinobi
             </Typography>
-                <Link href={`/${link}`}>
-                    <Button aria-label={page} color="inherit">
-                        {page}
-                    </Button>
-                </Link>
+                {   page === '' ? true : (
+                    <Link href={`/${link}`}>
+                        <Button aria-label={page} onClick={props.handleLogout()} color="inherit">
+                            {page}
+                        </Button>
+                    </Link> 
+                    )
+                }
           </Toolbar>
         </AppBar>
       </div>;
