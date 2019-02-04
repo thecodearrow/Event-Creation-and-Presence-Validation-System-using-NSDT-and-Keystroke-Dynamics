@@ -121,7 +121,7 @@ class StudentTable extends Component {
                   }}
                   align="left"
                 >
-                  {String(student.present[this.props.dayIndex])}
+                  {String(student.present[this.props.dayIndex]) == 'undefined' ? 'Waiting' : 'PRESENT'}
                 </TableCell>
               </TableRow>
             ))}

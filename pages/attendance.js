@@ -64,12 +64,12 @@ class Attendance extends Component {
     }
 
     componentDidMount() {
-        // const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
-        // const payload = new Uint8Array([1, 2, 3, 4])
-        // chirp.send(payload, err => err ?
-        //     console.error("An error occured") :
-        //     true
-        // )
+        const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
+        const payload = new Uint8Array([1, 2, 3, 4])
+        chirp.send(payload, err => err ?
+            console.error("An error occured") :
+            true
+        )
     }
 
     render() {
@@ -78,7 +78,9 @@ class Attendance extends Component {
             ...this.props.query
         }
 
-        const numberOfDays = Math.floor(((new Date(courseDetails.date).getTime()-new Date(2019,0,30).getTime())/(24*60*60*1000)));
+        const dateObjParam = new Date();
+
+        const dayIndex = Math.floor(((new Date(dateObjParam.getFullYear(), dateObjParam.getMonth(), dateObjParam.getDate()).getTime() - new Date(2019, 0, 29).getTime()) / (24 * 60 * 60 * 1000)));
 
         return (
         <React.Fragment>
@@ -115,7 +117,7 @@ class Attendance extends Component {
                 justify="space-around"
             >
             <Grid item>
-                <RollTable dayIndex={numberOfDays} courseCode={courseDetails.code} tdata={this.props.courses} />
+                <RollTable dayIndex={dayIndex} courseCode={courseDetails.code} tdata={this.props.courses} />
             </Grid>
             </Grid>
         </React.Fragment>
