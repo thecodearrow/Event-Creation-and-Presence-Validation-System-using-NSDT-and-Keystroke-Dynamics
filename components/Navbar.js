@@ -29,9 +29,9 @@ function NavBar(props) {
             <Typography variant="h6" color="inherit" className={classes.flex}>
               Sound Shinobi
             </Typography>
-                {   page === '' ? true : (
+                {   page === '' ? '' : (
                     <Link href={`/${link}`}>
-                        <Button aria-label={page} onClick={props.handleLogout()} color="inherit">
+                        <Button aria-label={page} onClick={(e)=>props.handleLogout()} color="inherit">
                             {page}
                         </Button>
                     </Link> 

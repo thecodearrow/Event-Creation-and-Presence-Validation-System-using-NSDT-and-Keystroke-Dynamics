@@ -9,7 +9,9 @@ import Divider from '@material-ui/core/Divider';
 
 import firebase from "firebase/app";
 import "firebase/auth";
+import Router from 'next/router';
 import { loadFirebase } from '../lib/firebase_client';
+import Loader from '../components/Loading';
 
 const styles = theme => ({
     head: {
@@ -48,15 +50,8 @@ const styles = theme => ({
 });
 
 class Dashboard extends Component {
-    constructor() {
-        super();
-        this.state = {
-            user: '',
-        }
-    }
+    static async getInitialProps({req, query, res}){
 
-    static async getInitialProps({req, query}){
-        const user = req && req.session ? req.session.decodedToken : null;
         let courses = []
         let result = await loadFirebase()
             .firestore()
@@ -70,29 +65,55 @@ class Dashboard extends Component {
                     })
                 })
             )
+
         return {
-            courses,
-            user
+            courses
         }
     }
 
-
-    async componentDidMount() {
-        console.log(await loadFirebase().auth().currentUser);
+    constructor() {
+        super();
+        this.state = {
+            courses: [],
+            user: ''
+        }
     }
 
+    componentDidMount(){
+        loadFirebase().auth().onAuthStateChanged(user => {
+            if (user) {
+                this.setState({
+                    ...this.state,
+                    user: user 
+                })
+                return user
+                    .getIdToken()
+                    .then(token => {
+                        return fetch('/api/login', {
+                            method: 'POST',
+                            headers: new Headers({ 'Content-Type': 'application/json' }),
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ token })
+                        })
+                    })
+            } else {
+                Router.push('/');
+            }
+        })
+    }
     handleLogout() {
         loadFirebase().auth().signOut()
     }
 
     render() {
         const { classes } = this.props;
-        return (<React.Fragment>
-            <Navbar page="Dashboard" handleLogout={this.handleLogout.bind(this)}/>
-            {   this.state.user !== null || this.state.user !== undefined ?
+        return (
+        <React.Fragment>
+            {   this.state.user ?
                 (   <React.Fragment>
+                        <Navbar page="Dashboard" handleLogout={() => this.handleLogout()} />
                         <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
-                            Welcome<em>{`, ${this.props.courses[0].facultyName}`}</em>
+                            Welcome<em>{`, ${this.state.user.displayName}`}</em>
                         </Typography>
 
                         <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
@@ -116,7 +137,7 @@ class Dashboard extends Component {
                         </Grid>
                     </React.Fragment>
                     ) : 
-                    true
+                    <Loader />
             }
         </React.Fragment>);
     }

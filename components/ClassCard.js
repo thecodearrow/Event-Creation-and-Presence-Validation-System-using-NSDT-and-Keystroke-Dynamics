@@ -7,6 +7,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Router from 'next/router';
 
 const styles = {
     card: {
@@ -28,9 +29,7 @@ const styles = {
 
 function ClassCard(props) {
     const { classes } = props;
-    const courseString = "&code=" + props.courseCode +"&name=" + encodeURIComponent(props.courseName) + 
-                "&sem=" + props.semester + 
-                "&year=" + props.year;
+
     return <Card className={classes.card}>
         <CardContent>
           <Typography className={classes.title} color="textSecondary" gutterBottom>
@@ -45,7 +44,15 @@ function ClassCard(props) {
           <Typography component="p">{props.students} students</Typography>
         </CardContent>
         <CardActions>
-            <Link href={`/attendance?${courseString}`}>
+            <Link href={{
+                pathname: '/attendance',
+                query: {
+                    code: props.courseCode,
+                    name: encodeURIComponent(props.courseName),
+                    sem: props.semester,
+                    year: props.year
+                }
+            }}>
                 <Button size="small" color="primary">
                     Take attendance
                 </Button>

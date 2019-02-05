@@ -12,6 +12,9 @@ import Divider from '@material-ui/core/Divider';
 import { loadFirebase } from '../lib/firebase_client';
 import firebase from "firebase/app";
 import "firebase/auth";
+import Router from 'next/router';
+
+import Loader from '../components/Loading';
 
 const styles = theme => ({
     head: {
@@ -57,43 +60,44 @@ const styles = theme => ({
 class Attendance extends Component {
   constructor() {
     super();
+    this.state = {
+        user: ''
+    }
   }
 
-  static async getInitialProps({ req, query }) {
-    const user = req && req.session ? req.session.decodedToken : null;
-    return {
-      query,
-      user
-    };
-  }
+  static async getInitialProps({ req,res,query }) {
+        return {
+            query
+        }
+    }
 
   componentDidMount() {
-
-    // loadFirebase().auth().onAuthStateChanged(user => {
-    //       if (user) {
-    //           this.setState({ user: user })
-    //           return user
-    //               .getIdToken()
-    //               .then(token => {
-    //                   return fetch('/api/login', {
-    //                       method: 'POST',
-    //                       headers: new Headers({ 'Content-Type': 'application/json' }),
-    //                       credentials: 'same-origin',
-    //                       body: JSON.stringify({ token })
-    //                   })
-    //               })
-    //               .then(res => {
-    //                 // const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
-    //                 // const payload = new Uint8Array([1,2,7,8,0])
-    //                 // chirp.send(payload, err => err ?
-    //                 //     console.error("An error occured") :
-    //                 //     true
-    //                 )
-    //             })
-    //       } else {
-    //           window.location.href = "http://localhost:3000/";
-    //       }
-    // })
+      loadFirebase().auth().onAuthStateChanged(user => {
+            if (user) {
+                this.setState({
+                    ...this.state,
+                    user: user 
+                })
+                return user
+                    .getIdToken()
+                    .then(token => {
+                        return fetch('/api/login', {
+                            method: 'POST',
+                            headers: new Headers({ 'Content-Type': 'application/json' }),
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ token })
+                        })
+                    })
+            } else {
+                Router.push('/');
+            }
+        })
+        const chirp = new ChirpConnect(YOUR_API_KEY);
+        const payload = new Uint8Array([1,2,7,8,0])
+        chirp.send(payload, err => err ?
+            console.error("An error occured") :
+            true
+        })
   }
 
   handleLogout() {
@@ -107,7 +111,6 @@ class Attendance extends Component {
     const courseDetails = {
       ...this.props.query
     };
-
     const dateObjParam = new Date();
     const numberOfDays = Math.floor(
       (new Date(
@@ -120,51 +123,54 @@ class Attendance extends Component {
     );
 
     return (
-      <React.Fragment>
-        <Navbar page="Attendance" handleLogout={this.handleLogout.bind(this)} />
-        <Typography
-          component="h3"
-          variant="h3"
-          gutterBottom
-          className={classes.mainHeader}
-        >
-          {courseDetails.name}
-        </Typography>
-        <Typography
-          component="h5"
-          variant="h5"
-          gutterBottom
-          className={classes.sub1Header}
-        >
-          {`${courseDetails.code.substr(
-            0,
-            6
-          )} | section - ${courseDetails.code.substr(7)}`}
-        </Typography>
-        <Typography
-          component="h6"
-          variant="h6"
-          gutterBottom
-          className={classes.sub2Header}
-        >
-          {`Semester ${courseDetails.sem} | Year ${courseDetails.year}`}
-        </Typography>
-        <Divider className={classes.divider} />
-        <Grid
-          className={classes.grid}
-          container
-          spacing={0}
-          justify="space-around"
-        >
-          <Grid item>
-            <RollTable
-              dayIndex={numberOfDays}
-              courseCode={courseDetails.code}
-              tdata={this.props.courses}
-            />
-          </Grid>
-        </Grid>
-      </React.Fragment>
+        <React.Fragment>
+            {
+                this.state.user === '' ? <Loader /> : 
+                    (
+                    <React.Fragment>
+                    <Navbar page="Attendance" handleLogout={this.handleLogout.bind(this)} />
+                    <Typography
+                    component="h3"
+                    variant="h3"
+                    gutterBottom
+                    className={classes.mainHeader}
+                    >
+                    {decodeURIComponent(courseDetails.name)}
+                    </Typography>
+                    <Typography
+                    component="h5"
+                    variant="h5"
+                    gutterBottom
+                    className={classes.sub1Header}
+                    >
+                    {`${courseDetails.code.substr(0,6)} | section - ${courseDetails.code.substr(7)}`}
+                    </Typography>
+                    <Typography
+                    component="h6"
+                    variant="h6"
+                    gutterBottom
+                    className={classes.sub2Header}
+                    >
+                    {`Semester ${courseDetails.sem} | Year ${courseDetails.year}`}
+                    </Typography>
+                    <Divider className={classes.divider} />
+                    <Grid
+                    className={classes.grid}
+                    container
+                    spacing={0}
+                    justify="space-around"
+                    >
+                        <Grid item>
+                            <RollTable
+                            dayIndex={numberOfDays}
+                            courseCode={courseDetails.code}
+                            tdata={this.props.courses}
+                            />
+                        </Grid>
+                    </Grid>
+                </React.Fragment>) 
+            } 
+        </React.Fragment>
     );
   }
 }

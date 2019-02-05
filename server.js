@@ -11,7 +11,7 @@ const handle = app.getRequestHandler()
 
 const firebase = admin.initializeApp(
     {
-        credential: admin.credential.cert(require('./lib/firebase_server.js')),
+        credential: admin.credential.cert(require('./lib/firebase_server')),
         databaseURL: 'https://majorproject-soundshinobi.firebaseio.com' 
     },
     'server'
@@ -40,7 +40,7 @@ app.prepare()
             next()
         })
 
-        server.get('/api/login', (req, res) => {
+        server.post('/api/login', (req, res) => {
             if (!req.body) return res.sendStatus(400)
     
             const token = req.body.token
@@ -51,16 +51,16 @@ app.prepare()
                     req.session.decodedToken = decodedToken
                     return decodedToken
                 })
-                .then(decodedToken => res.json({ status: true, decodedToken }))
-                .catch(error => res.json({ error, here:"tHERE WAS ERROR" }))
+                .then(decodedToken => res.json({ status: true, decodedToken}))
+                .catch(error => res.json({ error }))
         })
 
-        server.get('/api/logout', (req, res) => {
+        server.post('/api/logout', (req, res) => {
             req.session.decodedToken = null
             res.json({ status: true })
         })
 
-        server.get('/att/:courseString', (req, res) => {
+        server.get('/attendance/:courseString', (req, res) => {
             const actualPage = '/attendance'
             const queryParams = { courseString: req.params.courseString }
             app.render(req, res, actualPage, queryParams)
