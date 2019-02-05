@@ -94,9 +94,8 @@ class Attendance extends Component {
         })
         const chirp = new ChirpConnect(YOUR_API_KEY);
         const payload = new Uint8Array([1,2,7,8,0])
-        chirp.send(payload, err => err ?
-            console.error("An error occured") :
-            true
+        chirp.send(payload, err => {
+            err ? console.error("An error occured") : true
         })
   }
 
