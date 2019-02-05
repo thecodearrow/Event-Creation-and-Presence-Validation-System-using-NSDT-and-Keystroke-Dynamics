@@ -7,7 +7,11 @@ import Navbar from '../components/Navbar';
 import ClassCard from '../components/ClassCard';
 import Divider from '@material-ui/core/Divider';
 
-import { loadFirebase } from '../lib/db';
+import firebase from "firebase/app";
+import "firebase/auth";
+import Router from 'next/router';
+import { loadFirebase } from '../lib/firebase_client';
+import Loader from '../components/Loading';
 
 const styles = theme => ({
     head: {
@@ -41,16 +45,13 @@ const styles = theme => ({
         flexGrow: 1,
         marginTop: '5vh',
         padding: '0 5rem',
-        minHeight: '100vh'
+        minHeight: '110%'
     }
 });
 
 class Dashboard extends Component {
-    constructor() {
-        super();
-    }
+    static async getInitialProps({req, query, res}){
 
-    static async getInitialProps(){
         let courses = []
         let result = await loadFirebase()
             .firestore()
@@ -64,37 +65,80 @@ class Dashboard extends Component {
                     })
                 })
             )
+
         return {
             courses
         }
     }
 
+    constructor() {
+        super();
+        this.state = {
+            courses: [],
+            user: ''
+        }
+    }
+
+    componentDidMount(){
+        loadFirebase().auth().onAuthStateChanged(user => {
+            if (user) {
+                this.setState({
+                    ...this.state,
+                    user: user 
+                })
+                return user
+                    .getIdToken()
+                    .then(token => {
+                        return fetch('/api/login', {
+                            method: 'POST',
+                            headers: new Headers({ 'Content-Type': 'application/json' }),
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ token })
+                        })
+                    })
+            } else {
+                Router.push('/');
+            }
+        })
+    }
+    handleLogout() {
+        loadFirebase().auth().signOut()
+    }
+
     render() {
         const { classes } = this.props;
-        return (<React.Fragment>
-            <Navbar page="Dashboard" />
-            <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
-              Welcome<em>{`, ${this.props.courses[0].facultyName}`}</em>
-            </Typography>
-            <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
-              Classes for today
-            </Typography>
-            <Divider className={classes.divider} />
-            <Grid className={classes.grid} container spacing={24} justify="space-around">
-                {
-                    this.props.courses.length > 1 ? this.props.courses.map( (course,index) => (
-                    <Grid item key={index}>
-                        <ClassCard 
-                            courseCode={course.courseCode} 
-                            courseName={course.courseName} 
-                            semester={course.semester} 
-                            year={course.year}   
-                            students={course.students.length}
-                            facultyName={course.facultyName}
-                        />
-                    </Grid>)) : true
-                }
-            </Grid>
+        return (
+        <React.Fragment>
+            {   this.state.user ?
+                (   <React.Fragment>
+                        <Navbar page="Dashboard" handleLogout={() => this.handleLogout()} />
+                        <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
+                            Welcome<em>{`, ${this.state.user.displayName}`}</em>
+                        </Typography>
+
+                        <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
+                            Classes for Today
+                        </Typography>
+                        <Divider className={classes.divider} />
+                        <Grid className={classes.grid} container spacing={24} justify="space-around">
+                            {
+                                this.props.courses.length > 1 ? this.props.courses.map( (course,index) => (
+                                <Grid item key={index}>
+                                    <ClassCard 
+                                        courseCode={course.courseCode} 
+                                        courseName={course.courseName} 
+                                        semester={course.semester} 
+                                        year={course.year}   
+                                        students={course.students.length}
+                                        facultyName={course.facultyName}
+                                    />
+                                </Grid>)) : true
+                            }
+                        </Grid>
+                    </React.Fragment>
+                    ) : 
+                    <Loader />
+            }
         </React.Fragment>);
     }
 }
