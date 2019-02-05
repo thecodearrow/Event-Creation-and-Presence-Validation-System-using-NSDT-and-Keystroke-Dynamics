@@ -71,16 +71,6 @@ class Attendance extends Component {
         }
     }
 
-<<<<<<< HEAD
-    componentDidMount() {
-        const chirp = new ChirpConnect("FA3baAfbDBc9E2E9a8A352536");
-        const payload = new Uint8Array([1, 2, 3, 4])
-        chirp.send(payload, err => err ?
-            console.error("An error occured") :
-            true
-        )
-    }
-=======
   componentDidMount() {
       loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
@@ -108,7 +98,6 @@ class Attendance extends Component {
             err ? console.error("An error occured") : true
         })
   }
->>>>>>> auth
 
   handleLogout() {
     loadFirebase()
@@ -116,11 +105,6 @@ class Attendance extends Component {
       .signOut();
   }
 
-<<<<<<< HEAD
-        const dateObjParam = new Date();
-
-        const dayIndex = Math.floor(((new Date(dateObjParam.getFullYear(), dateObjParam.getMonth(), dateObjParam.getDate()).getTime() - new Date(2019, 0, 29).getTime()) / (24 * 60 * 60 * 1000)));
-=======
   render() {
     const { classes } = this.props;
     const courseDetails = {
@@ -136,48 +120,9 @@ class Attendance extends Component {
         new Date(2019, 0, 29).getTime()) /
         (24 * 60 * 60 * 1000)
     );
->>>>>>> auth
 
     return (
         <React.Fragment>
-<<<<<<< HEAD
-            <Navbar page="Attendance" />
-            <Typography
-                component="h3"
-                variant="h3"
-                gutterBottom
-                className={classes.mainHeader}
-            >
-            {courseDetails.name}
-            </Typography>
-            <Typography
-                component="h5"
-                variant="h5"
-                gutterBottom
-                className={classes.sub1Header}
-            >
-            {`${courseDetails.code.substr(0,6)} | section - ${courseDetails.code.substr(7,)}`}
-            </Typography>
-            <Typography
-                component="h6"
-                variant="h6"
-                gutterBottom
-                className={classes.sub2Header}
-            >
-            {`Semester ${courseDetails.sem} | Year ${courseDetails.year}`}
-            </Typography>
-            <Divider className={classes.divider} />
-            <Grid
-                className={classes.grid}
-                container
-                spacing={0}
-                justify="space-around"
-            >
-            <Grid item>
-                <RollTable dayIndex={dayIndex} courseCode={courseDetails.code} tdata={this.props.courses} />
-            </Grid>
-            </Grid>
-=======
             {
                 this.state.user === '' ? <Loader /> : 
                     (
@@ -224,7 +169,6 @@ class Attendance extends Component {
                     </Grid>
                 </React.Fragment>) 
             } 
->>>>>>> auth
         </React.Fragment>
     );
   }
