@@ -12,7 +12,7 @@ const handle = app.getRequestHandler()
 const firebase = admin.initializeApp(
     {
         credential: admin.credential.cert(require('./lib/firebase_server')),
-        databaseURL: 'https://majorproject-soundshinobi.firebaseio.com' 
+        databaseURL: 'YOUR_DB_URL' 
     },
     'server'
 )
@@ -25,9 +25,9 @@ app.prepare()
         server.use(bodyParser.json())
         server.use(
             session({
-                secret: 'geheimnis',
+                secret: 'YOUR_SECRET',
                 saveUninitialized: true,
-                store: new FileStore({ path: '/tmp/sessions', secret: 'geheimnis' }),
+                store: new FileStore({ path: '/tmp/sessions', secret: 'YOUR_SECRET' }),
                 resave: false,
                 rolling: true,
                 httpOnly: true,
