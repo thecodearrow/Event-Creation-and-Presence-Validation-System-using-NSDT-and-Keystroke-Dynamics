@@ -2,3 +2,4 @@
 .next/
 .env
 *firebase*
+chirp_config.js

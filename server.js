@@ -5,6 +5,8 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const admin = require("firebase-admin");
 
+const FIREBASE_DB = require("./lib/firebase_db_URL");
+
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
@@ -12,7 +14,7 @@ const handle = app.getRequestHandler()
 const firebase = admin.initializeApp(
     {
         credential: admin.credential.cert(require('./lib/firebase_server')),
-        databaseURL: 'https://majorproject-soundshinobi.firebaseio.com' 
+        databaseURL: FIREBASE_DB.URL
     },
     'server'
 )

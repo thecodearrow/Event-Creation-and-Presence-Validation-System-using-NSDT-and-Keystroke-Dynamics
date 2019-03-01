@@ -10,7 +10,8 @@ import Navbar from '../components/Navbar';
 import Divider from '@material-ui/core/Divider';
 
 import { loadFirebase } from '../lib/firebase_client';
-import firebase from "firebase/app";
+import { CHIRP_API_KEY } from "../lib/chirp_config";
+
 import "firebase/auth";
 import Router from 'next/router';
 
@@ -67,7 +68,8 @@ class Attendance extends Component {
 
   static async getInitialProps({ req,res,query }) {
         return {
-            query
+            query,
+            dayIndex: new Date().toString().substring(3,15)
         }
     }
 
@@ -92,7 +94,7 @@ class Attendance extends Component {
                 Router.push('/');
             }
         })
-        const chirp = new ChirpConnect(YOUR_API_KEY);
+        const chirp = new ChirpConnect(CHIRP_API_KEY);
         const payload = new Uint8Array([1,2,7,8,0])
         chirp.send(payload, err => {
             err ? console.error("An error occured") : true
@@ -110,16 +112,6 @@ class Attendance extends Component {
     const courseDetails = {
       ...this.props.query
     };
-    const dateObjParam = new Date();
-    const numberOfDays = Math.floor(
-      (new Date(
-        dateObjParam.getFullYear(),
-        dateObjParam.getMonth(),
-        dateObjParam.getDate()
-      ).getTime() -
-        new Date(2019, 0, 29).getTime()) /
-        (24 * 60 * 60 * 1000)
-    );
 
     return (
         <React.Fragment>
@@ -161,9 +153,9 @@ class Attendance extends Component {
                     >
                         <Grid item>
                             <RollTable
-                            dayIndex={numberOfDays}
-                            courseCode={courseDetails.code}
-                            tdata={this.props.courses}
+                                dayIndex={this.props.dayIndex}
+                                courseCode={courseDetails.code}
+                                tdata={this.props.courses}
                             />
                         </Grid>
                     </Grid>

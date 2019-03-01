@@ -88,7 +88,7 @@ class StudentTable extends Component {
       }
       return reqIndex+0;
     },0)
-
+    
     return (
       <Paper className={classes.root}>
         <Table className={classes.table}>
