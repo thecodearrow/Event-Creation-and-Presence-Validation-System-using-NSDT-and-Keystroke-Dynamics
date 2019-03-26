@@ -67,6 +67,12 @@ app.prepare()
             const queryParams = { courseString: req.params.courseString }
             app.render(req, res, actualPage, queryParams)
         })
+
+        server.get('/attendEvent/:attendString', (req, res) => {
+            const actualPage = '/attendEvent'
+            const queryParams = { attendString: req.params.attendString }
+            app.render(req, res, actualPage, queryParams)
+        })
         
         server.get('*', (req, res) => {
             return handle(req, res)

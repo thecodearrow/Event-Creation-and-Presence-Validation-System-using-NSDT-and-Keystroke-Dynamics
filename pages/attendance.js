@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ChirpConnect from "chirp-js-sdk";
 
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";

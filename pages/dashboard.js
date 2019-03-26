@@ -7,7 +7,6 @@ import Navbar from '../components/Navbar';
 import ClassCard from '../components/ClassCard';
 import Divider from '@material-ui/core/Divider';
 
-import firebase from "firebase/app";
 import "firebase/auth";
 import Router from 'next/router';
 import { loadFirebase } from '../lib/firebase_client';
@@ -117,7 +116,7 @@ class Dashboard extends Component {
                         </Typography>
 
                         <Typography component="h5" variant="h5" gutterBottom className={classes.subHeader}>
-                            Classes for Today
+                            Your Events
                         </Typography>
                         <Divider className={classes.divider} />
                         <Grid className={classes.grid} container spacing={24} justify="space-around">

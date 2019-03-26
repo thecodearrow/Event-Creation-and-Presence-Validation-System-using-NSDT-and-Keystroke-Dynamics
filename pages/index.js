@@ -49,7 +49,7 @@ class Login extends Component {
         const user = req && req.session ? req.session.decodedToken : null
          if (user){
                 res.writeHead(302, {
-                    Location: 'http://localhost:3000/dashboard'
+                    Location: 'http://localhost:3000/choose'
                 })
                 res.end()
         }
@@ -83,11 +83,12 @@ class Login extends Component {
 
     handleLogin() {
         let provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({
-            hd: "srmuniv.edu.in" // change to ktr.srmuniv.ac.in, later
-        });
+        // provider.setCustomParameters({
+        //     hd: "srmuniv.edu.in" // change to ktr.srmuniv.ac.in, later
+        // });
         loadFirebase().auth().signInWithRedirect(provider).then( user => {
-                Router.push('/dashboard');
+            loadFirebase().auth().user().onCreate()
+                Router.push('/choose');
         })
     }
 
