@@ -8,6 +8,8 @@ import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 
+import Loader from "../components/Loading";
+
 import { loadFirebase } from '../lib/firebase_client';
 import firebase from "firebase/app";
 import Router from 'next/router';
@@ -110,80 +112,85 @@ class AttendeeRegister extends Component {
     render() {
         const { classes } = this.props;
         return (
+          <React.Fragment>
+            {this.state.user !== '' ? (
             <React.Fragment>
-                <Navbar page="Create" />
-                {this.state.user !== null ? (
-                    <Grid
-                        container
-                        spacing={0}
-                        direction="row"
-                        alignItems="center"
-                        justify="center"
-                        style={{ minHeight: "90vh" }}
-                    >
-                        <Grid item xs={1} sm={3} />
-                        <Grid item xs={10} sm={6}>
-                            <Paper className={classes.root} elevation={2}>
-                                <Typography
-                                    variant="h2"
-                                    component="h2"
-                                    className={classes.head}
-                                >
-                                    Verify Biometrics
-                                </Typography>{" "}
-                                <br />
-                                <Typography
-                                    variant="subtitle2"
-                                    component="subtitle2"
-                                    className={classes.head}
-                                    style={{ color: "red" }}
-                                >
-                                    It has survived not only five centuries, but also
-                                    the leap into electronic typesetting, remaining
-                                    essentially unchanged.
-                                </Typography>
-                                <form
-                                    className={classes.container}
-                                    noValidate
-                                    autoComplete="off"
-                                >
-                                    <TextField
-                                        variant="outlined"
-                                        name="ksdTest"
-                                        id="ksdTest"
-                                        multiline
-                                        rowsMax={4}
-                                        label="Keystroke Dynamics Test"
-                                        placeholder="A KSD test"
-                                        fullWidth={true}
-                                        value={this.state.eventName}
-                                        onChange={e => {
-                                            this.handleChange(e);
-                                        }}
-                                        className={classes.textField}
-                                        margin="normal"
-                                    />
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        fullWidth
-                                        style={{ marginTop: "3em", marginLeft: "0" }}
-                                        onClick={e => {
-                                            this.submitHandler();
-                                        }}
-                                        className={classes.button}
-                                    >
-                                        VERIFY
-                      </Button>
-                                </form>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={1} sm={3} />
+                <Navbar
+                    page="Create"
+                    handleLogout={this.handleLogout.bind(this)}
+                />
+                <Grid
+                    container
+                    spacing={0}
+                    direction="row"
+                    alignItems="center"
+                    justify="center"
+                    style={{ minHeight: "90vh" }}
+                >
+                    <Grid item xs={1} sm={3} />
+                    <Grid item xs={10} sm={6}>
+                    <Paper className={classes.root} elevation={2}>
+                        <Typography
+                        variant="h2"
+                        component="h2"
+                        className={classes.head}
+                        >
+                        Verify Biometrics
+                        </Typography>{" "}
+                        <br />
+                        <Typography
+                        variant="subtitle2"
+                        component="subtitle2"
+                        className={classes.head}
+                        style={{ color: "red" }}
+                        >
+                        It has survived not only five centuries, but also
+                        the leap into electronic typesetting, remaining
+                        essentially unchanged.
+                        </Typography>
+                        <form
+                        className={classes.container}
+                        noValidate
+                        autoComplete="off"
+                        >
+                        <TextField
+                            variant="outlined"
+                            name="ksdTest"
+                            id="ksdTest"
+                            multiline
+                            rowsMax={4}
+                            label="Keystroke Dynamics Test"
+                            placeholder="A KSD test"
+                            fullWidth={true}
+                            value={this.state.eventName}
+                            onChange={e => {
+                            this.handleChange(e);
+                            }}
+                            className={classes.textField}
+                            margin="normal"
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            style={{ marginTop: "3em", marginLeft: "0" }}
+                            onClick={e => {
+                            this.submitHandler();
+                            }}
+                            className={classes.button}
+                        >
+                            VERIFY
+                        </Button>
+                        </form>
+                    </Paper>
                     </Grid>
-                ) : (
-                        true
-                    )}
+                    <Grid item xs={1} sm={3} />
+                </Grid>
             </React.Fragment>
+            ) : (
+              <Loader />
+            )}
+          </React.Fragment>
         );
     }
 }

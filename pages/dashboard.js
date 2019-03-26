@@ -108,9 +108,9 @@ class Dashboard extends Component {
         const { classes } = this.props;
         return (
         <React.Fragment>
-            {   this.state.user ?
+            {   this.state.user !== '' ?
                 (   <React.Fragment>
-                        <Navbar page="Dashboard" handleLogout={() => this.handleLogout()} />
+                        <Navbar page="Dashboard" handleLogout={this.handleLogout.bind(this)} />
                         <Typography component="h4" variant="h4" gutterBottom className={classes.mainHeader}>
                             Welcome<em>{`, ${this.state.user.displayName}`}</em>
                         </Typography>

@@ -7,6 +7,8 @@ import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import Button from "@material-ui/core/Button";
 
+import Loader from "../components/Loading";
+
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
 import "firebase/auth";
@@ -95,48 +97,50 @@ class Choose extends Component {
 
     render() {
         const { classes } = this.props;
-        console.log(this.state.user.email);
         return (
             <React.Fragment>
-                <Navbar page="Choose" />
                 {
-                    this.state.user !== null ? (
-                    <Grid
-                        container
-                        spacing={0}
-                        direction="row"
-                        alignItems="center"
-                        justify="center"
-                        style={{ minHeight: '90vh' }}
-                    >
-                    {
-                        this.state.user.email.includes('srmuniv') ? 
-                        ( 
-                        <Grid item xs={10} sm={8}>
-                            <Paper elevation={2} className={classes.buttonContainer}>
-                                <Button variant="contained" size="large" className={classes.button}>
-                                    <a className={classes.buttonLink} href={`/create`}>Create an Event!</a>
-                                 </Button>
-                                    <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
-                                        If you plan to organize an event, pick this option.
-                                </Typography>
-                            </Paper>
-                        </Grid>) :(
-                            this.state.user.email.includes('gmail') ?
-                                (<Grid item xs={10} sm={8}>
-                                        <Paper elevation={2} className={classes.buttonContainer}>
-                                        <Button variant="contained" size="large" className={classes.button}>
-                                            <a className={classes.buttonLink} href={`/attend`}>Attend an Event!</a>
-                                        </Button>
-                                            <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
-                                            If you have an event code, please pick this option.
-                                        </Typography>
-                                    </Paper>
-                                </Grid>): true
-                        )
-                    }
-                    </Grid>) : true
-                }
+                    this.state.user.email !== 'dummy' ? (
+                    <React.Fragment>
+                        <Navbar page="Choose" handleLogout={this.handleLogout.bind(this)} />
+                        <Grid
+                            container
+                            spacing={0}
+                            direction="row"
+                            alignItems="center"
+                            justify="center"
+                            style={{ minHeight: '90vh' }}
+                        >
+                        {
+                            this.state.user.email.includes('srmuniv') ? 
+                            ( 
+                            <Grid item xs={10} sm={8}>
+                                <Paper elevation={2} className={classes.buttonContainer}>
+                                    <Button variant="contained" size="large" className={classes.button}>
+                                        <a className={classes.buttonLink} href={`/create`}>Create an Event!</a>
+                                    </Button>
+                                        <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
+                                            If you plan to organize an event, pick this option.
+                                    </Typography>
+                                </Paper>
+                            </Grid>) :(
+                                this.state.user.email.includes('gmail') ?
+                                    (<Grid item xs={10} sm={8}>
+                                            <Paper elevation={2} className={classes.buttonContainer}>
+                                            <Button variant="contained" size="large" className={classes.button}>
+                                                <a className={classes.buttonLink} href={`/attend`}>Attend an Event!</a>
+                                            </Button>
+                                                <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
+                                                If you have an event code, please pick this option.
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    ): true
+                            )
+                        }
+                    </Grid>
+                </React.Fragment>) : (<Loader />)
+            }
             </React.Fragment>);
     }
 }

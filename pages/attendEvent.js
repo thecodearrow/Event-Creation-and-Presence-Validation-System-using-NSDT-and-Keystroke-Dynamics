@@ -6,12 +6,15 @@ import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import Button from "@material-ui/core/Button";
 
+import Loader from "../components/Loading";
+
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
 
 import ChirpMessenger from '../components/ChirpMessenger';
+import Loading from '../components/Loading';
 
 const styles = theme => ({
     head: {
@@ -100,22 +103,25 @@ class AttendEvent extends Component {
     render() {
         const { classes } = this.props;
         return (
-            <React.Fragment>
-                <Navbar page="AttendEvent" />
-                {
-                    this.state.user !== null ? (
-                        <Grid
-                            container
-                            spacing={0}
-                            direction="row"
-                            alignItems="center"
-                            justify="center"
-                            style={{ minHeight: '90vh' }}
-                        >
-                            <ChirpMessenger />
-                        </Grid>): true
-                }
-            </React.Fragment>);
+          <React.Fragment>
+            {this.state.user !== '' ? (
+                <React.Fragment>
+                    <Grid
+                        container
+                        spacing={0}
+                        direction="row"
+                        alignItems="center"
+                        justify="center"
+                        style={{ minHeight: "90vh" }}
+                    >
+                        <ChirpMessenger />
+                    </Grid>
+                </React.Fragment>
+            ) : (
+              <Loader />
+            )}
+          </React.Fragment>
+        );
     }
 }
 

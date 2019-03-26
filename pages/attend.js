@@ -8,6 +8,8 @@ import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 
+import Loader from '../components/Loading';
+
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
 import "firebase/auth";
@@ -105,56 +107,74 @@ class Attend extends Component {
     render() {
         const { classes } = this.props;
         return (
+          <React.Fragment>
+            {this.state.user !== '' ? (
             <React.Fragment>
-                <Navbar page="Attend" />
-                {
-                    this.state.user !== null ? (
-                        <Grid
-                            container
-                            spacing={0}
-                            direction="column"
-                            alignItems="center"
-                            justify="center"
-                            style={{ minHeight: '90vh' }}
-                        >
-                            <Grid item xs={1} sm={4} />
-                            <Grid item xs={10} sm={4}>
-                                <Paper className={classes.root} elevation={2}>
-                                    <Typography variant="subtitle1" className={classes.head}>
-                                       Enter the 6-digit Event Code
-                                    </Typography>
-                                    <form className={classes.container} noValidate autoComplete="off">
-                                        <TextField
-                                            variant="outlined"
-                                            name="eventCode"
-                                            id="eventCode"
-                                            label="Event Code"
-                                            error={this.state.formError}
-                                            placeholder="Event Code"
-                                            fullWidth={true}
-                                            value={this.state.eventCode}
-                                            onChange={(e) => { this.handleChange(e) }}
-                                            className={classes.textField}
-                                            margin="normal"
-                                        />
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            fullWidth
-                                            style={{ marginTop: '3em', marginLeft: '0' }}
-                                            onClick={(e) => { this.handleValidate() }}
-                                            className={classes.button}
-                                            disabled={!(this.state.eventCode.length === 6)}
-                                        >
-                                            Validate
-                                        </Button>
-                                    </form>
-                                </Paper>
-                            </Grid>
-                            <Grid item xs={1} sm={4} />
-                        </Grid>) : true
-                }
-            </React.Fragment>);
+                <Navbar
+                    page="Attend"
+                    handleLogout={this.handleLogout.bind(this)}
+                />
+                         <Grid
+                        container
+                        spacing={0}
+                        direction="column"
+                        alignItems="center"
+                        justify="center"
+                        style={{ minHeight: "90vh" }}
+                    >
+                        <Grid item xs={1} sm={4} />
+                        <Grid item xs={10} sm={4}>
+                        <Paper className={classes.root} elevation={2}>
+                            <Typography
+                            variant="subtitle1"
+                            className={classes.head}
+                            >
+                            Enter the 6-digit Event Code
+                            </Typography>
+                            <form
+                            className={classes.container}
+                            noValidate
+                            autoComplete="off"
+                            >
+                            <TextField
+                                variant="outlined"
+                                name="eventCode"
+                                id="eventCode"
+                                label="Event Code"
+                                error={this.state.formError}
+                                placeholder="Event Code"
+                                fullWidth={true}
+                                value={this.state.eventCode}
+                                onChange={e => {
+                                this.handleChange(e);
+                                }}
+                                className={classes.textField}
+                                margin="normal"
+                            />
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                style={{ marginTop: "3em", marginLeft: "0" }}
+                                onClick={e => {
+                                this.handleValidate();
+                                }}
+                                className={classes.button}
+                                disabled={!(this.state.eventCode.length === 6)}
+                            >
+                                Validate
+                            </Button>
+                            </form>
+                        </Paper>
+                        </Grid>
+                        <Grid item xs={1} sm={4} />
+                    </Grid>
+                </React.Fragment>
+            ) : (
+              <Loader />
+            )}
+          </React.Fragment>
+        );
     }
 }
 

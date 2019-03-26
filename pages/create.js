@@ -9,6 +9,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
 
+import Loader from '../components/Loading';
+
 import { loadFirebase } from '../lib/firebase_client';
 import firebase from "firebase/app";
 import Router from 'next/router';
@@ -125,88 +127,93 @@ class Create extends Component {
         const { classes } = this.props;
         return (
           <React.Fragment>
-            <Navbar page="Create" />
-            {this.state.user !== null ? (
-              <Grid
-                container
-                spacing={0}
-                direction="row"
-                alignItems="center"
-                justify="center"
-                style={{ minHeight: "90vh" }}
-              >
-                <Grid item xs={1} sm={3} />
-                <Grid item xs={10} sm={6}>
-                  <Paper className={classes.root} elevation={2}>
-                    <Typography
-                      variant="h2"
-                      component="h2"
-                      className={classes.head}
-                    >
-                      Create an Event
-                    </Typography>
-                    <form
-                      className={classes.container}
-                      noValidate
-                      autoComplete="off"
-                    >
-                      <TextField
-                        variant="outlined"
-                        name="eventName"
-                        id="eventName"
-                        placeholder="Event Name"
-                        fullWidth={true}
-                        value={this.state.eventName}
-                        onChange={e => {
-                          this.handleChange(e);
-                        }}
-                        className={classes.textField}
-                        margin="normal"
-                      />
-                      {/* <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} /> */}
-                      <TextField
-                        variant="outlined"
-                        select
-                        name="location"
-                        defaultValue="Pick Event Location"
-                        className={classes.textField}
-                        value={this.state.location}
-                        onChange={e => {
-                          this.handleSelectChange(e);
-                        }}
-                        SelectProps={{
-                          MenuProps: {
-                            className: classes.menu
-                          }
-                        }}
-                        fullWidth={true}
-                        margin="normal"
+            {this.state.user !== '' ? (
+              <React.Fragment>
+                <Navbar
+                  page="Create"
+                  handleLogout={this.handleLogout.bind(this)}
+                />
+                <Grid
+                  container
+                  spacing={0}
+                  direction="row"
+                  alignItems="center"
+                  justify="center"
+                  style={{ minHeight: "90vh" }}
+                >
+                  <Grid item xs={1} sm={3} />
+                  <Grid item xs={10} sm={6}>
+                    <Paper className={classes.root} elevation={2}>
+                      <Typography
+                        variant="h2"
+                        component="h2"
+                        className={classes.head}
                       >
-                        {["UB", "TP", "Audi"].map(el => (
-                          <MenuItem key={el} value={el}>
-                            {el}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        style={{ marginTop: "3em", marginLeft: "0" }}
-                        onClick={e => {
-                          this.submitHandler();
-                        }}
-                        className={classes.button}
+                        Create an Event
+                      </Typography>
+                      <form
+                        className={classes.container}
+                        noValidate
+                        autoComplete="off"
                       >
-                        CREATE
-                      </Button>
-                    </form>
-                  </Paper>
+                        <TextField
+                          variant="outlined"
+                          name="eventName"
+                          id="eventName"
+                          placeholder="Event Name"
+                          fullWidth={true}
+                          value={this.state.eventName}
+                          onChange={e => {
+                            this.handleChange(e);
+                          }}
+                          className={classes.textField}
+                          margin="normal"
+                        />
+                        {/* <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} /> */}
+                        <TextField
+                          variant="outlined"
+                          select
+                          name="location"
+                          defaultValue="Pick Event Location"
+                          className={classes.textField}
+                          value={this.state.location}
+                          onChange={e => {
+                            this.handleSelectChange(e);
+                          }}
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                          fullWidth={true}
+                          margin="normal"
+                        >
+                          {["UB", "TP", "Audi"].map(el => (
+                            <MenuItem key={el} value={el}>
+                              {el}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          fullWidth
+                          style={{ marginTop: "3em", marginLeft: "0" }}
+                          onClick={e => {
+                            this.submitHandler();
+                          }}
+                          className={classes.button}
+                        >
+                          CREATE
+                        </Button>
+                      </form>
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={1} sm={3} />
                 </Grid>
-                <Grid item xs={1} sm={3} />
-              </Grid>
+              </React.Fragment>
             ) : (
-              true
+              <Loader />
             )}
           </React.Fragment>
         );
