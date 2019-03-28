@@ -14,7 +14,6 @@ import "firebase/auth";
 import "isomorphic-unfetch";
 
 import ChirpMessenger from '../components/ChirpMessenger';
-import Loading from '../components/Loading';
 
 const styles = theme => ({
     head: {
@@ -106,6 +105,10 @@ class AttendEvent extends Component {
           <React.Fragment>
             {this.state.user !== '' ? (
                 <React.Fragment>
+                    <Navbar
+                        page="AttendEvent"
+                        handleLogout={this.handleLogout.bind(this)}
+                    />
                     <Grid
                         container
                         spacing={0}

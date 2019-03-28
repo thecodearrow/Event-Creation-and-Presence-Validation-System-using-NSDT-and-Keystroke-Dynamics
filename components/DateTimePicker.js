@@ -1,4 +1,3 @@
-import 'date-fns';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
@@ -8,42 +7,62 @@ import { MuiPickersUtilsProvider, TimePicker, DatePicker } from 'material-ui-pic
 
 const styles = {
     grid: {
-        width: '60%',
+        width: '100%',
     },
 };
 
 class DateTimePicker extends React.Component {
-    state = {
-        selectedDate: new Date('2014-08-18T21:11:54'),
-    };
+  state = {
+    selectedEventDate: new Date("2019-01-01T00:00:00"),
+    selectedStartDate: new Date("2019-01-01T00:00:00"),
+    selectedEndDate: new Date("2019-01-01T00:00:00")
+  };
 
-    handleDateChange = date => {
-        this.props.handleDateChange(date);
-    };
+  handleDateChange = (i,date) => {
+    var whichDate = i === 1 ? {
+            selectedStartDate: date
+        } : ( i === 2 ? {
+            selectedEndDate: date
+    } : {
+        selectedEventDate: date
+    });
 
-    render() {
-        const { classes } = this.props;
-        const { selectedDate } = this.state;
+    this.setState({
+        ...whichDate,
+    },() =>{
+        this.props.handleDateChange(this.state.selectedStartDate,this.state.selectedEndDate);
+    });
+  };
 
-        return (
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <Grid container className={classes.grid} justify="space-around">
-                    <DatePicker
-                        margin="normal"
-                        label="Date picker"
-                        value={selectedDate}
-                        onChange={this.handleDateChange}
-                    />
-                    <TimePicker
-                        margin="normal"
-                        label="Time picker"
-                        value={selectedDate}
-                        onChange={this.handleDateChange}
-                    />
-                </Grid>
-            </MuiPickersUtilsProvider>
-        );
-    }
+  render() {
+    const { classes } = this.props;
+    const { selectedEventDate, selectedStartDate, selectedEndDate } = this.state;
+
+    return (
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <Grid container className={classes.grid} justify="space-around">
+          <DatePicker
+            margin="normal"
+            label="Event Date"
+            value={selectedEventDate}
+            onChange={this.handleDateChange.bind(this,0)}
+          />
+          <TimePicker
+            margin="normal"
+            label="Event Start Time"
+            value={selectedStartDate}
+            onChange={this.handleDateChange.bind(this,1)}
+          />
+          <TimePicker
+            margin="normal"
+            label="Event End Time"
+            value={selectedEndDate}
+            onChange={this.handleDateChange.bind(this,2)}
+          />
+        </Grid>
+      </MuiPickersUtilsProvider>
+    );
+  }
 }
 
 DateTimePicker.propTypes = {

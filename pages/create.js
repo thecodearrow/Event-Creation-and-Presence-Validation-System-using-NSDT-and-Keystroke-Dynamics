@@ -17,7 +17,7 @@ import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
 
-// import DateTimePicker from '../components/DateTimePicker';
+import DateTimePicker from '../components/DateTimePicker';
 
 
 const styles = theme => ({
@@ -61,8 +61,9 @@ class Create extends Component {
         this.state = {
             user: '',
             eventName: '',
-            location: '',
-            dateTime: ''
+            location: 'Event Location',
+            startDate:'',
+            endDate: ''
         }
     }
 
@@ -107,10 +108,11 @@ class Create extends Component {
         });
     } 
 
-    handleDateChange(dateTime) {
+    handleDateChange(startDate, endDate) {
       this.setState({
         ...this.state,
-        dateTime
+        startDate,
+        endDate
       })
     }
 
@@ -169,12 +171,11 @@ class Create extends Component {
                           className={classes.textField}
                           margin="normal"
                         />
-                        {/* <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} /> */}
+                        <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} />
                         <TextField
                           variant="outlined"
                           select
                           name="location"
-                          defaultValue="Pick Event Location"
                           className={classes.textField}
                           value={this.state.location}
                           onChange={e => {
@@ -188,7 +189,7 @@ class Create extends Component {
                           fullWidth={true}
                           margin="normal"
                         >
-                          {["UB", "TP", "Audi"].map(el => (
+                          {["Event Location","UB", "TP", "Audi"].map(el => (
                             <MenuItem key={el} value={el}>
                               {el}
                             </MenuItem>
