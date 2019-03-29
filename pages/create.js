@@ -8,11 +8,14 @@ import Navbar from '../components/Navbar';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Snackbar from "@material-ui/core/Snackbar";
+import Fade from "@material-ui/core/Fade";
 
 import Loader from '../components/Loading';
 
 import { loadFirebase } from '../lib/firebase_client';
-import firebase from "firebase/app";
 import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
@@ -58,20 +61,31 @@ class Create extends Component {
 
     constructor() {
         super();
+        this.FBRef = loadFirebase().firestore().collection('events');
         this.state = {
             user: '',
             eventName: '',
             location: 'Event Location',
             startDate:'',
-            endDate: ''
+            endDate: '',
+            eventDate: '',
+            mode: false,
+            open: false,
+            formError: "ERROR"
         }
     }
 
     handleChange(e) {
         this.setState({
             ...this.state,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            formError: e.target.value.length === 0 ? "ERROR" : (this.state.location === 'Event Location' ?
+              "ERROR": "")
         })
+    }
+
+    handleSwitchChange = name => event => {
+      this.setState({ [name]: event.target.checked });
     }
 
     componentDidMount() {
@@ -104,25 +118,58 @@ class Create extends Component {
     handleSelectChange(e) {
         this.setState({
             ...this.state,
-            location:e.target.value
+            location:e.target.value,
+            formError: e.target.value === 'Event Location' ? "ERROR" : (this.state.eventName.length === 0 ?
+            "ERROR" : "")
         });
     } 
 
-    handleDateChange(startDate, endDate) {
-      this.setState({
-        ...this.state,
-        startDate,
-        endDate
-      })
+    handleDateChange(startDate, endDate, eventDate) {
+      if (eventDate.getDate() < new Date().getDate() || eventDate.getMonth() < new Date().getMonth() || eventDate.getFullYear() < new Date().getFullYear() || (startDate.getTime() < new Date().getTime()) ) {
+        this.setState({
+          formError: "Event Date has already passed",
+          open: true
+        })
+      }
+      else if (startDate > endDate){
+        this.setState({
+            formError: "Start Time should be ahead of End Time of event",
+            open: true
+        })
+      }
+      else {
+        this.setState({
+          formError: ((this.state.location !== 'Event Location') && (this.state.eventName !== '') ? "" : "ERROR"),
+          open: false,
+          eventDate,
+          startDate,
+          endDate
+        })
+      }
     }
 
+    handleClose = () => {
+      this.setState({ open: false });
+    };
+
     submitHandler () {
-        const eventData = {
-            ...this.state,
-            user: this.state.user.email
-        }
-        console.log(eventData);
-        //make doc on firebase and send
+      const eventData = {
+          startDate: this.state.startDate,
+          endDate: this.state.endDate,
+          eventDate: this.state.eventDate.toLocaleString('en-GB').substr(0,10),
+          location: this.state.location,
+          mode: this.state.mode ? "STRICT" : "NOSTRICT",
+          organizer_email: this.state.user.email
+      }
+      //perform a check whether event exists already at same loc, time, date (or) same title, then perform ADD as below
+      this.FBRef.add({
+        ...eventData
+      }).then(function (docRef) {
+        console.log("Document written with ID: ", docRef.id);
+      })
+      .catch(function (error) {
+        console.error("Error adding document: ", error);
+      });    
     }
 
     render() {
@@ -195,8 +242,20 @@ class Create extends Component {
                             </MenuItem>
                           ))}
                         </TextField>
+                        <FormControlLabel
+                          style={{ marginLeft: '0em', marginTop: '1em' }}
+                          control={ <Switch
+                            checked={this.state.mode}
+                            onChange={this.handleSwitchChange('mode')}
+                            value="strictMode"
+                            color="primary"
+                          />
+                          }
+                          label="Strict Mode (enforces Biometrics)"
+                        />
                         <Button
                           variant="contained"
+                          disabled={!this.state.formError == ""}
                           color="primary"
                           fullWidth
                           style={{ marginTop: "3em", marginLeft: "0" }}
@@ -212,6 +271,15 @@ class Create extends Component {
                   </Grid>
                   <Grid item xs={1} sm={3} />
                 </Grid>
+                <Snackbar
+                  open={this.state.open}
+                  onClose={this.handleClose}
+                  TransitionComponent={Fade}
+                  ContentProps={{
+                    'aria-describedby': 'message-id',
+                  }}
+                  message={<span id="message-id">{this.state.formError}</span>}
+                />
               </React.Fragment>
             ) : (
               <Loader />

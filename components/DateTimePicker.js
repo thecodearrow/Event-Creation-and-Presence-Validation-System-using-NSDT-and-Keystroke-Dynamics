@@ -8,29 +8,32 @@ import { MuiPickersUtilsProvider, TimePicker, DatePicker } from 'material-ui-pic
 const styles = {
     grid: {
         width: '100%',
+        marginLeft: '0.5em',
+        marginRight: '0.5em' 
     },
 };
 
 class DateTimePicker extends React.Component {
   state = {
-    selectedEventDate: new Date("2019-01-01T00:00:00"),
-    selectedStartDate: new Date("2019-01-01T00:00:00"),
-    selectedEndDate: new Date("2019-01-01T00:00:00")
+    selectedEventDate: new Date(),
+    selectedStartDate: new Date(),
+    selectedEndDate: new Date()
   };
 
-  handleDateChange = (i,date) => {
-    var whichDate = i === 1 ? {
+  handleDateChange(i,date) {
+    let whichDate = i == 1 ? {
             selectedStartDate: date
-        } : ( i === 2 ? {
+        } : ( i == 2 ? {
             selectedEndDate: date
     } : {
+        selectedStartDate: date,
+        selectedEndDate: date,
         selectedEventDate: date
     });
-
     this.setState({
         ...whichDate,
     },() =>{
-        this.props.handleDateChange(this.state.selectedStartDate,this.state.selectedEndDate);
+        this.props.handleDateChange(this.state.selectedStartDate,this.state.selectedEndDate,this.state.selectedEventDate);
     });
   };
 
@@ -40,21 +43,24 @@ class DateTimePicker extends React.Component {
 
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <Grid container className={classes.grid} justify="space-around">
+        <Grid container className={classes.grid} justify="space-between">
           <DatePicker
             margin="normal"
             label="Event Date"
+            variant="outlined"
             value={selectedEventDate}
             onChange={this.handleDateChange.bind(this,0)}
           />
           <TimePicker
             margin="normal"
             label="Event Start Time"
+            variant="outlined"
             value={selectedStartDate}
             onChange={this.handleDateChange.bind(this,1)}
           />
           <TimePicker
             margin="normal"
+            variant="outlined"
             label="Event End Time"
             value={selectedEndDate}
             onChange={this.handleDateChange.bind(this,2)}
