@@ -134,15 +134,16 @@ class AttendeeRegister extends Component {
 
     }
     submitHandler () {
- 
+        
         const eventData = {
             ...this.state,
             user: this.state.user.email,
             hasTyped: true, //can be made better by bounding what the user types so as to prompt errors (.getQuality() too! )
-            typingPattern:this.tdna.getTypingPattern({type:0, length:200}) //typing pattern captured 
-                                                                            //@TODO Experiment with 0,2 to see which performs better
+            typingPattern:this.tdna.getTypingPattern({type:0, length:150}) //typing pattern captured 
+                           
+            //@TODO Experiment with 0,2 to see which performs better
         }
-        console.log(this.tdna.getTypingPattern({type:0, length:200}));
+        console.log(eventData.typingPattern);
         
         //Store eventData to firebase 
 
@@ -197,7 +198,7 @@ class AttendeeRegister extends Component {
                         className={classes.head}
                         style={{ color: "midnightblue" }}
                         >
-                        Please ensure you type the way you normally do. By continuing to type further, you provide consent for your current typing pattern to be logged into our database which maybe used to validate your presence in future.
+                        Please ensure you type the way you normally do. By continuing to type further, you provide consent for your current typing pattern to be logged into our database which maybe used to validate your presence in future
                         </Typography>
                         <form
                         className={classes.container}

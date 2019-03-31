@@ -17,8 +17,7 @@ import "firebase/auth";
 import "isomorphic-unfetch";
 import Head from 'next/head';
 import { withSnackbar } from 'notistack';
-import TypingDnaClient from  "typingdnaclient"
-import { typingDNA } from  "../lib/typingDNA_config"
+
 const styles = theme => ({
     head: {
         textAlign: 'center'
@@ -133,58 +132,55 @@ class AttendeeVerify extends Component {
 
     }
 
-     matchTypingPatterns(tp1,tp2){
-        var apiKey = typingDNA.apiKey;
-        var apiSecret = typingDNA.apiSecret;
-     
-        var url = "http://cors.io/?https://api.typingdna.com/match:443";
- 
-       var data={tp1:tp1,tp2:tp2,quality:'2'};
+     postRequestAndMatchTypingPatterns(tp1,tp2){
 
-        (async () => {
-            const rawResponse = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Cache-Control': 'no-cache',
-                'Authorization': 'Basic ' + new Buffer(apiKey + ':' + apiSecret).toString('base64'),
-                "Access-Control-Allow-Origin": "http://localhost:3000", //CARE TO BE TAKEN!
-                "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+        fetch('/attendeeVerify', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({tp1:tp1,tp2:tp2})  //Sending tp1 and tp2
+            })
+            .then(res => res.json())
+            .then(response =>{
 
-            },
-            body: JSON.stringify(data),
-             credentials: "same-origin",
-            });
-            const content = await rawResponse.json();
-        
-            console.log(content);
-        })();
+                const decider=response["score"];
+                console.log("Hola",decider);
+                if(decider>=75){
+                    this.successNotify();
+                }
+                else{
+                    this.failureNotify();
+                }
+                console.log(response);
+            })
+            .catch(error => console.error('Error:', error));
+
+    
        
     }
 
     submitHandler() {
+
         const eventData = {
             ...this.state,
             user: this.state.user.email,
-            currentTypingPattern:this.tdna.getTypingPattern({type:0, length:200}),
+            currentTypingPattern:this.tdna.getTypingPattern({type:0, length:150}),
             attendanceStatus:true //to be updated based on match(tp1,tp2) and firebase retrieval status
             
         }
         console.log(eventData.currentTypingPattern);
+
         //Retrive Typing Pattern from Firebase for eventData.user 
-        const dbTypingPattern="200,237,253,0.3715,1.6918,0.1596,0.5638,94,159,15,53,9,3,5,6,16,3,4,3,8,0,0,4,3,12,16,5,0,15,4,16,11,2,1,0,12,0,31,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9686,1.0147,1.1195,1.0021,1.1042,1.0524,1.0582,0.5346,1.0888,1,1,0.9182,1.3753,0.9411,0.5975,1.1245,1,0.8539,1.0425,1.3324,0.9906,1.717,4.478,1,1.0524,1,0.8783,1,1.4717,0.9843,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.1359,1.2376,1.0979,1.0468,0.9787,1.117,1.0904,0.8972,0.8647,1,1,0.8989,1.1667,1.0124,0.8511,0.9574,1,1.0184,1.0532,0.9461,0.97,0.9628,1.1383,1,0.9707,1,1.0851,1,1.3936,0.9628,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0287,1.4235,0.6226,0.9486,0.8644,0.8386,0.8365,0.9581,1.0723,1,1,0.989,0.9623,1.0503,1.1732,0.883,1,0.9584,1.174,0.808,0.8006,0.9969,0.5786,1,0.8239,1,1.2104,1,1.478,1.2327,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.7022,0.4724,0.5163,0.7696,0.6288,1.204,0.911,0.464,0.8189,1,1,0.0815,0.28,0.6363,0.4833,1.181,1,0.4842,0.9541,1.7188,0.5918,1.7358,1,1,0.9116,1,0.8821,1,1,0.7453,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.7495,1.0959,1.2687,0.3029,0.792,0.3569,1.4738,0.9065,1.0065,1,1,0.5281,0.4157,1.2757,0.5013,0.8022,1,0.5178,0.5963,0.9943,1.0865,0.7667,1,1,0.8845,1,0.7413,1,1,0.0333,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0542,2.4603,0.8316,1.0447,0.6111,0.8091,1.246,0.6323,0.6293,1,1,0.8331,0.1111,0.5425,0.6192,0.3308,1,0.918,0.0321,0.9903,0.5519,0.0849,1,1,0.807,1,0.8663,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,3,0,-1,200,0,7,44,12,0,-1,-1,34,103,11,2,134,5,2,39,28,2,0,0,1,2,1,848663921,1,1,0,0,0,1,1440,900,1,1012,73,0,2121341559";  //hardcoded for now
 
-        this.matchTypingPatterns(dbTypingPattern,eventData.currentTypingPattern);
+        const dbTypingPattern = '142,248,242,0.3884,1.5747,0.1489,0.5426,94,148,14,51,10,1,2,6,17,0,2,5,7,0,0,6,1,9,7,3,0,6,7,11,5,2,2,0,8,0,23,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1.0209,1.1486,1.0203,0.7973,1.1415,1,0.6892,0.5845,1.0975,1,1,0.75,1.1622,0.9231,0.75,1.3041,1,0.9414,0.8716,1.3286,1.0581,1.2939,0.8514,1,1.1873,1,0.7942,1,1,1.2432,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.134,1.1277,0.9362,0.945,0.9944,1,1.0053,1.0298,0.9848,1,1,0.834,1.2234,1.0697,0.886,1.0213,1,0.9716,0.9392,0.912,0.9532,0.8989,1,1,1.0878,1,1.1448,1,1,0.9255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.8881,0.6014,0.6757,0.777,0.9578,1,0.6622,1.0432,0.9208,1,1,0.9482,0.8649,0.8708,1.1892,1.2477,1,1.0113,0.8485,0.9742,0.9324,0.8919,1.1824,1,0.7239,1,1.3587,1,1,0.4324,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.5465,1,0.6078,0.8502,0.7335,1,0.4314,0.3952,0.7465,1,1,0.7826,1,0.8069,0.9163,1.5916,1,0.6413,0.3088,0.8655,0.3962,0.3039,0.0392,1,1.1454,1,0.7754,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0347,1,0.1429,0.5207,0.9574,1,0.0357,1.1432,1.1306,1,1,0.3769,1,0.5882,0.713,0.7626,1,0.8275,0.8186,0.7117,1.0923,1.0357,1,1,0.7438,1,1.1185,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.9573,1,1.2353,0.6574,0.9014,1,0.3922,0.632,0.8309,1,1,0.5906,1,0.7226,0.3654,0.7045,1,0.8787,0.9256,1.0702,0.6254,0.3137,0.4902,1,0.5094,1,1.0353,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,3,0,-1,142,0,1,107,-1,0,-1,-1,23,108,16,2,113,8,2,85,11,2,0,0,1,2,1,848663921,1,1,0,0,0,1,1440,900,1,1012,73,0,2121341559';
+
+        this.postRequestAndMatchTypingPatterns(dbTypingPattern,eventData.currentTypingPattern);
 
 
-         //Snackbar Notifications (Success/ Failure Notification)
-         if(eventData.attendanceStatus){
-            this.successNotify();
-           }
-           else{
-               this.failureNotify();
-           }
+         //Snackbar Notifications => Can be DB failure, Match Failure too... Customise accordingly
+        // Have handled Match Failure in  postRequestAndMatchTypingPatterns
    
     }
 
@@ -228,9 +224,9 @@ class AttendeeVerify extends Component {
                         className={classes.head}
                         style={{ color: "midnightblue" }}
                         >
-                        Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type.
+                        Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type
                         </Typography>
-                        <form
+                        <form 
                         className={classes.container}
                         noValidate
                         autoComplete="off"
