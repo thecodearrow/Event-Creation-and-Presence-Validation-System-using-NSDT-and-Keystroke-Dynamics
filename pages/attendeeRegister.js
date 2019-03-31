@@ -9,12 +9,12 @@ import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 
 import Loader from '../components/Loading';
-
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
-
+import Head from 'next/head';
+import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
     head: {
@@ -51,11 +51,17 @@ class AttendeeRegister extends Component {
 
     constructor() {
         super();
+
+        //TypingDNA instance
+        this.tdna=""  
+
         this.state = {
             user: '',
-            ksdTest: '',
+            typingPattern: '',  //the typing pattern of user at time of registration
             location: '',
-            dateTime: ''
+            dateTime: '',
+            hasTyped: false
+    
         }
     }
 
@@ -67,12 +73,15 @@ class AttendeeRegister extends Component {
     }
 
     componentDidMount() {
+
+        this.tdna=new TypingDNA(); //should be instantiated once typingDNA.js loads
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({
                     ...this.state,
                     user: user
-                })
+                }
+                )
                 return user
                     .getIdToken()
                     .then(token => {
@@ -99,21 +108,69 @@ class AttendeeRegister extends Component {
             location:e.target.value
         });
     } 
+
+    successNotify(){
+        const message_success="Typing Pattern Registered";
+
+        this.props.enqueueSnackbar(message_success, { 
+          variant: 'success',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+        }
+      });
+
+    }
+
+    failureNotify(){
+        const message_failure="Registration Failed.";
+        this.props.enqueueSnackbar(message_failure, { 
+          variant: 'error',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+        }
+      });
+
+    }
     submitHandler () {
+ 
         const eventData = {
             ...this.state,
-            user: this.state.user.email
+            user: this.state.user.email,
+            hasTyped: true, //can be made better by bounding what the user types so as to prompt errors (.getQuality() too! )
+            typingPattern:this.tdna.getTypingPattern({type:0, length:200}) //typing pattern captured 
+                                                                            //@TODO Experiment with 0,2 to see which performs better
         }
-        //console.log(eventData);
-        //make doc on firebase and send
+        console.log(this.tdna.getTypingPattern({type:0, length:200}));
+        
+        //Store eventData to firebase 
+
+        //Snackbar Notifications (Success/ Failure Notification)
+        if(eventData.hasTyped){
+         this.successNotify();
+        }
+        else{
+            this.failureNotify();
+        }
+
+        //Text Highlighting on type to be added
+
     }
 
     render() {
         const { classes } = this.props;
         return (
-          <React.Fragment>
+        
+            <React.Fragment>
+              <Head>
+                <script src="https://www.typingdna.com/scripts/typingdna.js">
+                </script>  
+              </Head>
+
             {this.state.user !== '' ? (
             <React.Fragment>
+                
                 <Navbar page="Create" handleLogout={this.handleLogout.bind(this)} />
                 <Grid
                     container
@@ -138,11 +195,9 @@ class AttendeeRegister extends Component {
                         variant="subtitle2"
                         component="subtitle2"
                         className={classes.head}
-                        style={{ color: "red" }}
+                        style={{ color: "midnightblue" }}
                         >
-                        It has survived not only five centuries, but also
-                        the leap into electronic typesetting, remaining
-                        essentially unchanged.
+                        Please ensure you type the way you normally do. By continuing to type further, you provide consent for your current typing pattern to be logged into our database which maybe used to validate your presence in future.
                         </Typography>
                         <form
                         className={classes.container}
@@ -155,8 +210,7 @@ class AttendeeRegister extends Component {
                             id="ksdTest"
                             multiline
                             rowsMax={4}
-                            label="Keystroke Dynamics Test"
-                            placeholder="A KSD test"
+                            label="Type the above text here..."
                             fullWidth={true}
                             value={this.state.eventName}
                             onChange={e => {
@@ -164,6 +218,7 @@ class AttendeeRegister extends Component {
                             }}
                             className={classes.textField}
                             margin="normal"
+                            
                         />
                         <Button
                             variant="contained"
@@ -186,13 +241,15 @@ class AttendeeRegister extends Component {
             ) : (
               <Loader />
             )}
-          </React.Fragment>
+            
+        </React.Fragment>
         );
     }
 }
 
 AttendeeRegister.propTypes = {
-    classes: PropTypes.object.isRequired
+    classes: PropTypes.object.isRequired,
+    enqueueSnackbar: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(AttendeeRegister);
+export default withStyles(styles)(withSnackbar(AttendeeRegister));

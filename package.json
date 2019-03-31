@@ -27,10 +27,12 @@
     "jss": "^9.8.7",
     "material-ui-pickers": "^2.2.4",
     "next": "^7.0.2",
+    "notistack": "^0.6.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-jss": "^8.6.1",
     "session-file-store": "^1.2.0",
-    "typeface-roboto": "0.0.54"
+    "typeface-roboto": "0.0.54",
+    "typingdnaclient": "^1.0.3"
   }
 }

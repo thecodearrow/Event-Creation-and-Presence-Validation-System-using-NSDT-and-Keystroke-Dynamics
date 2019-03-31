@@ -15,8 +15,10 @@ import firebase from "firebase/app";
 import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
-
-
+import Head from 'next/head';
+import { withSnackbar } from 'notistack';
+import TypingDnaClient from  "typingdnaclient"
+import { typingDNA } from  "../lib/typingDNA_config"
 const styles = theme => ({
     head: {
         textAlign: 'center'
@@ -48,15 +50,18 @@ const styles = theme => ({
     }
 });
 
-class AttendeeRegister extends Component {
+class AttendeeVerify extends Component {
 
     constructor() {
         super();
+        //TypingDNA instance
+        this.tdna=""
         this.state = {
             user: '',
-            ksdTest: '',
             location: '',
-            dateTime: ''
+            dateTime: '',
+            currentTypingPattern:'',
+            attendanceStatus:false
         }
     }
 
@@ -68,6 +73,7 @@ class AttendeeRegister extends Component {
     }
 
     componentDidMount() {
+        this.tdna=new TypingDNA(); //should be instantiated once typingDNA.js loads
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({
@@ -100,19 +106,79 @@ class AttendeeRegister extends Component {
             location: e.target.value
         });
     }
+
+
+    successNotify(){
+        const message_success="Attendance Marked";
+
+        this.props.enqueueSnackbar(message_success, { 
+          variant: 'success',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+        }
+      });
+
+    }
+
+    failureNotify(){
+        const message_failure="Failed to valiate. Please type again. ";
+        this.props.enqueueSnackbar(message_failure, { 
+          variant: 'error',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+        }
+      });
+
+    }
+
+     matchTypingPatterns(tp1,tp2){
+
+        const typingDnaClient = new TypingDnaClient(typingDNA.apiKey, typingDNA.apiSecret);
+    
+        typingDnaClient.match(tp1,tp2,'2',
+            function(error, result) {
+              if (error) { console.error(error) }
+              console.log(result);
+            });
+    
+    }
+
     submitHandler() {
         const eventData = {
             ...this.state,
-            user: this.state.user.email
+            user: this.state.user.email,
+            currentTypingPattern:this.tdna.getTypingPattern({type:0, length:200}),
+            attendanceStatus:true //to be updated based on match(tp1,tp2) and firebase retrieval status
+            
         }
-        console.log(eventData);
-        //make doc on firebase and send
+        console.log(eventData.currentTypingPattern);
+        //Retrive Typing Pattern from Firebase for eventData.user 
+        const dbTypingPattern="200,237,253,0.3715,1.6918,0.1596,0.5638,94,159,15,53,9,3,5,6,16,3,4,3,8,0,0,4,3,12,16,5,0,15,4,16,11,2,1,0,12,0,31,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9686,1.0147,1.1195,1.0021,1.1042,1.0524,1.0582,0.5346,1.0888,1,1,0.9182,1.3753,0.9411,0.5975,1.1245,1,0.8539,1.0425,1.3324,0.9906,1.717,4.478,1,1.0524,1,0.8783,1,1.4717,0.9843,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.1359,1.2376,1.0979,1.0468,0.9787,1.117,1.0904,0.8972,0.8647,1,1,0.8989,1.1667,1.0124,0.8511,0.9574,1,1.0184,1.0532,0.9461,0.97,0.9628,1.1383,1,0.9707,1,1.0851,1,1.3936,0.9628,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0287,1.4235,0.6226,0.9486,0.8644,0.8386,0.8365,0.9581,1.0723,1,1,0.989,0.9623,1.0503,1.1732,0.883,1,0.9584,1.174,0.808,0.8006,0.9969,0.5786,1,0.8239,1,1.2104,1,1.478,1.2327,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.7022,0.4724,0.5163,0.7696,0.6288,1.204,0.911,0.464,0.8189,1,1,0.0815,0.28,0.6363,0.4833,1.181,1,0.4842,0.9541,1.7188,0.5918,1.7358,1,1,0.9116,1,0.8821,1,1,0.7453,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.7495,1.0959,1.2687,0.3029,0.792,0.3569,1.4738,0.9065,1.0065,1,1,0.5281,0.4157,1.2757,0.5013,0.8022,1,0.5178,0.5963,0.9943,1.0865,0.7667,1,1,0.8845,1,0.7413,1,1,0.0333,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0542,2.4603,0.8316,1.0447,0.6111,0.8091,1.246,0.6323,0.6293,1,1,0.8331,0.1111,0.5425,0.6192,0.3308,1,0.918,0.0321,0.9903,0.5519,0.0849,1,1,0.807,1,0.8663,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,3,0,-1,200,0,7,44,12,0,-1,-1,34,103,11,2,134,5,2,39,28,2,0,0,1,2,1,848663921,1,1,0,0,0,1,1440,900,1,1012,73,0,2121341559";  //hardcoded for now
+
+        this.matchTypingPatterns(dbTypingPattern,eventData.currentTypingPattern);
+
+
+         //Snackbar Notifications (Success/ Failure Notification)
+         if(eventData.attendanceStatus){
+            this.successNotify();
+           }
+           else{
+               this.failureNotify();
+           }
+   
     }
 
     render() {
         const { classes } = this.props;
         return (
           <React.Fragment>
+
+                <Head>
+                <script src="https://www.typingdna.com/scripts/typingdna.js">
+                </script>  
+              </Head>
             {this.state.user !== '' ? (
             <React.Fragment>
                 <Navbar
@@ -142,11 +208,9 @@ class AttendeeRegister extends Component {
                         variant="subtitle2"
                         component="subtitle2"
                         className={classes.head}
-                        style={{ color: "red" }}
+                        style={{ color: "midnightblue" }}
                         >
-                        It has survived not only five centuries, but also
-                        the leap into electronic typesetting, remaining
-                        essentially unchanged.
+                        Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type.
                         </Typography>
                         <form
                         className={classes.container}
@@ -159,8 +223,7 @@ class AttendeeRegister extends Component {
                             id="ksdTest"
                             multiline
                             rowsMax={4}
-                            label="Keystroke Dynamics Test"
-                            placeholder="A KSD test"
+                            label="Type the above text..."
                             fullWidth={true}
                             value={this.state.eventName}
                             onChange={e => {
@@ -179,7 +242,7 @@ class AttendeeRegister extends Component {
                             }}
                             className={classes.button}
                         >
-                            VERIFY
+                            MARK MY ATTENDANCE
                         </Button>
                         </form>
                     </Paper>
@@ -195,8 +258,9 @@ class AttendeeRegister extends Component {
     }
 }
 
-AttendeeRegister.propTypes = {
-    classes: PropTypes.object.isRequired
+AttendeeVerify.propTypes = {
+    classes: PropTypes.object.isRequired,
+    enqueueSnackbar: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(AttendeeRegister);
+export default withStyles(styles)(withSnackbar(AttendeeVerify));
