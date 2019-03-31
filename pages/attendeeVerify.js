@@ -134,15 +134,33 @@ class AttendeeVerify extends Component {
     }
 
      matchTypingPatterns(tp1,tp2){
+        var apiKey = typingDNA.apiKey;
+        var apiSecret = typingDNA.apiSecret;
+     
+        var url = "http://cors.io/?https://api.typingdna.com/match:443";
+ 
+       var data={tp1:tp1,tp2:tp2,quality:'2'};
 
-        const typingDnaClient = new TypingDnaClient(typingDNA.apiKey, typingDNA.apiSecret);
-    
-        typingDnaClient.match(tp1,tp2,'2',
-            function(error, result) {
-              if (error) { console.error(error) }
-              console.log(result);
+        (async () => {
+            const rawResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Cache-Control': 'no-cache',
+                'Authorization': 'Basic ' + new Buffer(apiKey + ':' + apiSecret).toString('base64'),
+                "Access-Control-Allow-Origin": "http://localhost:3000", //CARE TO BE TAKEN!
+                "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+
+            },
+            body: JSON.stringify(data),
+             credentials: "same-origin",
             });
-    
+            const content = await rawResponse.json();
+        
+            console.log(content);
+        })();
+       
     }
 
     submitHandler() {
