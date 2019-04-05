@@ -11,11 +11,10 @@ import Button from "@material-ui/core/Button";
 import Loader from "../components/Loading";
 
 import { loadFirebase } from '../lib/firebase_client';
-import firebase from "firebase/app";
 import Router from 'next/router';
+import firebase from 'firebase/app';
 import "firebase/auth";
 import "isomorphic-unfetch";
-import Head from 'next/head';
 import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
@@ -53,14 +52,27 @@ class AttendeeVerify extends Component {
 
     constructor() {
         super();
-        //TypingDNA instance
+
         this.tdna=""
+
+        this.eCode = ''
+
+        this.FBRef = loadFirebase()
+          .firestore()
+          .collection("attendees");
+
+        this.FBRefEvents = loadFirebase()
+            .firestore()
+            .collection("events");
+
         this.state = {
             user: '',
             location: '',
             dateTime: '',
             currentTypingPattern:'',
-            attendanceStatus:false
+            attendanceStatus: false,
+            buttonActive: false,
+            KSDtested: false
         }
     }
 
@@ -71,13 +83,29 @@ class AttendeeVerify extends Component {
         })
     }
 
-    componentDidMount() {
-        this.tdna=new TypingDNA(); //should be instantiated once typingDNA.js loads
+    async componentDidMount() {
+        this.tdna = new TypingDNA()
+
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({
                     ...this.state,
                     user: user
+                }, async () => {
+                    this.eCode = decodeURIComponent(
+                        window.location.href.split("/").pop()
+                    );
+                    this.setState({
+                        buttonActive: true
+                    })
+                    if (this.eCode === 'attendeeVerify') {
+                        window.location = "http://" + window.location.host + '/choose';
+                    }
+                    if (await this.checkKSDRecords()) {
+                        this.setState({
+                            KSDtested: true
+                        })
+                    }
                 })
                 return user
                     .getIdToken()
@@ -146,14 +174,19 @@ class AttendeeVerify extends Component {
             .then(response =>{
 
                 const decider=response["score"];
-                console.log("Hola",decider);
-                if(decider>=75){
-                    this.successNotify();
+
+                console.log(decider); // @TODO REMOVE CONSOLE LOGS LIKE THIS
+
+                if(decider>=70){ //temp change to 70
+                    this.FBRefEvents.doc(this.eCode)
+                    .update({
+                        attendees: firebase.firestore.FieldValue.arrayUnion(this.state.user.email)
+                    })
+                    .then(() => this.successNotify());
                 }
                 else{
                     this.failureNotify();
                 }
-                console.log(response);
             })
             .catch(error => console.error('Error:', error));
 
@@ -161,7 +194,18 @@ class AttendeeVerify extends Component {
        
     }
 
-    submitHandler() {
+    async checkKSDRecords() {
+        await this.FBRef.where("user", "==", this.state.user.email)
+            .get().then(function (querySnapshot) {
+                if (querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+            })
+            .catch(function (error) {
+                Router.push('/attendeeRegister');
+            });
+        return true;
+    }
+
+    async submitHandler() {
 
         const eventData = {
             ...this.state,
@@ -170,33 +214,37 @@ class AttendeeVerify extends Component {
             attendanceStatus:true //to be updated based on match(tp1,tp2) and firebase retrieval status
             
         }
-        console.log(eventData.currentTypingPattern);
+        //console.log(eventData.currentTypingPattern);
 
         //Retrive Typing Pattern from Firebase for eventData.user 
 
-        const dbTypingPattern = '142,248,242,0.3884,1.5747,0.1489,0.5426,94,148,14,51,10,1,2,6,17,0,2,5,7,0,0,6,1,9,7,3,0,6,7,11,5,2,2,0,8,0,23,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1.0209,1.1486,1.0203,0.7973,1.1415,1,0.6892,0.5845,1.0975,1,1,0.75,1.1622,0.9231,0.75,1.3041,1,0.9414,0.8716,1.3286,1.0581,1.2939,0.8514,1,1.1873,1,0.7942,1,1,1.2432,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.134,1.1277,0.9362,0.945,0.9944,1,1.0053,1.0298,0.9848,1,1,0.834,1.2234,1.0697,0.886,1.0213,1,0.9716,0.9392,0.912,0.9532,0.8989,1,1,1.0878,1,1.1448,1,1,0.9255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.8881,0.6014,0.6757,0.777,0.9578,1,0.6622,1.0432,0.9208,1,1,0.9482,0.8649,0.8708,1.1892,1.2477,1,1.0113,0.8485,0.9742,0.9324,0.8919,1.1824,1,0.7239,1,1.3587,1,1,0.4324,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.5465,1,0.6078,0.8502,0.7335,1,0.4314,0.3952,0.7465,1,1,0.7826,1,0.8069,0.9163,1.5916,1,0.6413,0.3088,0.8655,0.3962,0.3039,0.0392,1,1.1454,1,0.7754,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0347,1,0.1429,0.5207,0.9574,1,0.0357,1.1432,1.1306,1,1,0.3769,1,0.5882,0.713,0.7626,1,0.8275,0.8186,0.7117,1.0923,1.0357,1,1,0.7438,1,1.1185,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.9573,1,1.2353,0.6574,0.9014,1,0.3922,0.632,0.8309,1,1,0.5906,1,0.7226,0.3654,0.7045,1,0.8787,0.9256,1.0702,0.6254,0.3137,0.4902,1,0.5094,1,1.0353,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,3,0,-1,142,0,1,107,-1,0,-1,-1,23,108,16,2,113,8,2,85,11,2,0,0,1,2,1,848663921,1,1,0,0,0,1,1440,900,1,1012,73,0,2121341559';
+        //const dbTypingPattern = '142,248,242,0.3884,1.5747,0.1489,0.5426,94,148,14,51,10,1,2,6,17,0,2,5,7,0,0,6,1,9,7,3,0,6,7,11,5,2,2,0,8,0,23,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1.0209,1.1486,1.0203,0.7973,1.1415,1,0.6892,0.5845,1.0975,1,1,0.75,1.1622,0.9231,0.75,1.3041,1,0.9414,0.8716,1.3286,1.0581,1.2939,0.8514,1,1.1873,1,0.7942,1,1,1.2432,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.134,1.1277,0.9362,0.945,0.9944,1,1.0053,1.0298,0.9848,1,1,0.834,1.2234,1.0697,0.886,1.0213,1,0.9716,0.9392,0.912,0.9532,0.8989,1,1,1.0878,1,1.1448,1,1,0.9255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.8881,0.6014,0.6757,0.777,0.9578,1,0.6622,1.0432,0.9208,1,1,0.9482,0.8649,0.8708,1.1892,1.2477,1,1.0113,0.8485,0.9742,0.9324,0.8919,1.1824,1,0.7239,1,1.3587,1,1,0.4324,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.5465,1,0.6078,0.8502,0.7335,1,0.4314,0.3952,0.7465,1,1,0.7826,1,0.8069,0.9163,1.5916,1,0.6413,0.3088,0.8655,0.3962,0.3039,0.0392,1,1.1454,1,0.7754,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.0347,1,0.1429,0.5207,0.9574,1,0.0357,1.1432,1.1306,1,1,0.3769,1,0.5882,0.713,0.7626,1,0.8275,0.8186,0.7117,1.0923,1.0357,1,1,0.7438,1,1.1185,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.9573,1,1.2353,0.6574,0.9014,1,0.3922,0.632,0.8309,1,1,0.5906,1,0.7226,0.3654,0.7045,1,0.8787,0.9256,1.0702,0.6254,0.3137,0.4902,1,0.5094,1,1.0353,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,3,0,-1,142,0,1,107,-1,0,-1,-1,23,108,16,2,113,8,2,85,11,2,0,0,1,2,1,848663921,1,1,0,0,0,1,1440,900,1,1012,73,0,2121341559';
+        let that = this; // keep function level ref of 'this for func below 
 
-        this.postRequestAndMatchTypingPatterns(dbTypingPattern,eventData.currentTypingPattern);
+        this.FBRef.where("user","==",this.state.user.email)
+        .get().then(function (querySnapshot) {
+            querySnapshot.forEach(async function (doc) {
+                const dbTypingPattern = doc.data().typingPattern;
+                that.postRequestAndMatchTypingPatterns(dbTypingPattern,eventData.currentTypingPattern);
+            });
+        })
+        .catch(function (error) {
+            console.log("Error getting documents: ", error);
+        });
 
-
-         //Snackbar Notifications => Can be DB failure, Match Failure too... Customise accordingly
-        // Have handled Match Failure in  postRequestAndMatchTypingPatterns
-   
+        //Snackbar Notifications => Can be DB failure, Match Failure too... Customise accordingly
+        // Have handled Match Failure in  postRequestAndMatchTypingPatterns 
     }
 
     render() {
         const { classes } = this.props;
         return (
           <React.Fragment>
-
-                <Head>
-                <script src="https://www.typingdna.com/scripts/typingdna.js">
-                </script>  
-              </Head>
-            {this.state.user !== '' ? (
+            {this.state.user !== '' && this.state.KSDtested ? (
             <React.Fragment>
                 <Navbar
-                    page="Create"
+                    page="attendeeVerify"
+                    email={this.state.user.email.includes("srmuniv")}
                     handleLogout={this.handleLogout.bind(this)}
                 />
                 <Grid
@@ -220,11 +268,10 @@ class AttendeeVerify extends Component {
                         <br />
                         <Typography
                         variant="subtitle2"
-                        component="subtitle2"
                         className={classes.head}
                         style={{ color: "midnightblue" }}
                         >
-                        Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type
+                            Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type
                         </Typography>
                         <form 
                         className={classes.container}
@@ -249,10 +296,11 @@ class AttendeeVerify extends Component {
                         <Button
                             variant="contained"
                             color="primary"
+                            disabled={!this.state.buttonActive}
                             fullWidth
                             style={{ marginTop: "3em", marginLeft: "0" }}
                             onClick={e => {
-                            this.submitHandler();
+                                this.submitHandler();
                             }}
                             className={classes.button}
                         >

@@ -154,18 +154,20 @@ class Create extends Component {
 
     submitHandler () {
       const eventData = {
-          startDate: this.state.startDate,
-          endDate: this.state.endDate,
+          eventName: this.state.eventName,
+          startDate: this.state.startDate.toLocaleString('en-GB'),
+          endDate: this.state.endDate.toLocaleString('en-GB'),
           eventDate: this.state.eventDate.toLocaleString('en-GB').substr(0,10),
           location: this.state.location,
           mode: this.state.mode ? "STRICT" : "NOSTRICT",
-          organizer_email: this.state.user.email
+          organizer_email: this.state.user.email,
+          attendees:[]
       }
       //perform a check whether event exists already at same loc, time, date (or) same title, then perform ADD as below
       this.FBRef.add({
         ...eventData
       }).then(function (docRef) {
-        console.log("Document written with ID: ", docRef.id);
+        window.location = "http://" + window.location.host + '/dashboard';
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);
@@ -179,7 +181,8 @@ class Create extends Component {
             {this.state.user !== '' ? (
               <React.Fragment>
                 <Navbar
-                  page="Create"
+                  page="create"
+                  email={this.state.user.email.includes("srmuniv")}
                   handleLogout={this.handleLogout.bind(this)}
                 />
                 <Grid
@@ -190,86 +193,91 @@ class Create extends Component {
                   justify="center"
                   style={{ minHeight: "90vh" }}
                 >
-                  <Grid item xs={1} sm={3} />
-                  <Grid item xs={10} sm={6}>
-                    <Paper className={classes.root} elevation={2}>
-                      <Typography
-                        variant="h2"
-                        component="h2"
-                        className={classes.head}
-                      >
-                        Create an Event
-                      </Typography>
-                      <form
-                        className={classes.container}
-                        noValidate
-                        autoComplete="off"
-                      >
-                        <TextField
-                          variant="outlined"
-                          name="eventName"
-                          id="eventName"
-                          placeholder="Event Name"
-                          fullWidth={true}
-                          value={this.state.eventName}
-                          onChange={e => {
-                            this.handleChange(e);
-                          }}
-                          className={classes.textField}
-                          margin="normal"
-                        />
-                        <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} />
-                        <TextField
-                          variant="outlined"
-                          select
-                          name="location"
-                          className={classes.textField}
-                          value={this.state.location}
-                          onChange={e => {
-                            this.handleSelectChange(e);
-                          }}
-                          SelectProps={{
-                            MenuProps: {
-                              className: classes.menu
-                            }
-                          }}
-                          fullWidth={true}
-                          margin="normal"
-                        >
-                          {["Event Location","UB", "TP", "Audi"].map(el => (
-                            <MenuItem key={el} value={el}>
-                              {el}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                        <FormControlLabel
-                          style={{ marginLeft: '0em', marginTop: '1em' }}
-                          control={ <Switch
-                            checked={this.state.mode}
-                            onChange={this.handleSwitchChange('mode')}
-                            value="strictMode"
-                            color="primary"
-                          />
-                          }
-                          label="Strict Mode (enforces Biometrics)"
-                        />
-                        <Button
-                          variant="contained"
-                          disabled={!this.state.formError == ""}
-                          color="primary"
-                          fullWidth
-                          style={{ marginTop: "3em", marginLeft: "0" }}
-                          onClick={e => {
-                            this.submitHandler();
-                          }}
-                          className={classes.button}
-                        >
-                          CREATE
-                        </Button>
-                      </form>
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={1} sm={3} />
+                  { this.state.user.email /*.includes('srmuniv')*/ ? (
+                    <React.Fragment>
+                      <Grid item xs={1} sm={3} />
+                      <Grid item xs={10} sm={6}>
+                        <Paper className={classes.root} elevation={2}>
+                          <Typography
+                            variant="h2"
+                            component="h2"
+                            className={classes.head}
+                          >
+                            Create an Event
+                          </Typography>
+                          <form
+                            className={classes.container}
+                            noValidate
+                            autoComplete="off"
+                          >
+                            <TextField
+                              variant="outlined"
+                              name="eventName"
+                              id="eventName"
+                              placeholder="Event Name"
+                              fullWidth={true}
+                              value={this.state.eventName}
+                              onChange={e => {
+                                this.handleChange(e);
+                              }}
+                              className={classes.textField}
+                              margin="normal"
+                            />
+                            <DateTimePicker handleDateChange = {this.handleDateChange.bind(this)} />
+                            <TextField
+                              variant="outlined"
+                              select
+                              name="location"
+                              className={classes.textField}
+                              value={this.state.location}
+                              onChange={e => {
+                                this.handleSelectChange(e);
+                              }}
+                              SelectProps={{
+                                MenuProps: {
+                                  className: classes.menu
+                                }
+                              }}
+                              fullWidth={true}
+                              margin="normal"
+                            >
+                              {["Event Location","UB", "TP", "Audi"].map(el => (
+                                <MenuItem key={el} value={el}>
+                                  {el}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                            <FormControlLabel
+                              style={{ marginLeft: '0em', marginTop: '1em' }}
+                              control={ <Switch
+                                checked={this.state.mode}
+                                onChange={this.handleSwitchChange('mode')}
+                                value="strictMode"
+                                color="primary"
+                              />
+                              }
+                              label="Strict Mode (enforces Biometrics)"
+                            />
+                            <Button
+                              variant="contained"
+                              disabled={!this.state.formError == ""}
+                              color="primary"
+                              fullWidth
+                              style={{ marginTop: "3em", marginLeft: "0" }}
+                              onClick={e => {
+                                this.submitHandler();
+                              }}
+                              className={classes.button}
+                            >
+                              CREATE
+                            </Button>
+                          </form>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={1} sm={3} />
+                    </React.Fragment>) : (
+                    <Typography variant="h2">You are not authorized to create events</Typography> )
+                }
                 </Grid>
                 <Snackbar
                   open={this.state.open}

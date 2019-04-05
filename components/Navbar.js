@@ -7,8 +7,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from "@material-ui/core/Button";
 
-import { loadFirebase } from '../lib/firebase_client';
-
 const styles = {
     root: {
         flexGrow: 1,
@@ -21,22 +19,40 @@ const styles = {
 
 function NavBar(props) {
     const { classes } = props;
-    const page = props.page === "Login" ? '' : "Logout"; 
-    const link = (page === "Login" || page === "Logout" ? '' : page.toLowerCase());
+    const page = props.page === "Login" ? '' : props.page; 
+    const link = (page === "Login" || page === "Logout" ? '' : page)
+    const whiteListForDashboard = ["create","choose","attend"];
     return <div className={classes.root}>
         <AppBar position="static" color="primary">
           <Toolbar>
             <Typography variant="h6" color="inherit" className={classes.flex}>
               Sound Shinobi
             </Typography>
-                {   page === '' ? '' : (
+                {   page === '' ? '' : whiteListForDashboard.includes(page) ? ( (page === "choose" || page === "attend") && props.email ?
+                    (<React.Fragment>
+                        <Link href={`/dashboard`}>
+                            <Button aria-label="dashboard" color="inherit">
+                                dashboard
+                            </Button>
+                        </Link> 
                     <Link href={`/${link}`}>
-                        <Button aria-label={page} onClick={(e)=>props.handleLogout()} color="inherit">
-                            {page}
+                        <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                            Logout
                         </Button>
                     </Link> 
-                    )
-                }
+                </React.Fragment>) : (
+                    <Link href={`/${link}`}>
+                        <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                            Logout
+                        </Button>
+                    </Link> 
+                )) :
+                (<Link href={`/${link}`}>
+                    <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                        Logout
+                    </Button>
+                </Link> )
+            }
           </Toolbar>
         </AppBar>
       </div>;

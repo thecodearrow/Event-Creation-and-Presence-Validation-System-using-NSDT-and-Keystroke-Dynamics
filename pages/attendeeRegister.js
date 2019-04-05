@@ -13,7 +13,6 @@ import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
 import "firebase/auth";
 import "isomorphic-unfetch";
-import Head from 'next/head';
 import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
@@ -55,6 +54,10 @@ class AttendeeRegister extends Component {
         //TypingDNA instance
         this.tdna=""  
 
+        this.FBRef = loadFirebase()
+          .firestore()
+          .collection("attendees");
+
         this.state = {
             user: '',
             typingPattern: '',  //the typing pattern of user at time of registration
@@ -75,6 +78,7 @@ class AttendeeRegister extends Component {
     componentDidMount() {
 
         this.tdna=new TypingDNA(); //should be instantiated once typingDNA.js loads
+
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({
@@ -143,36 +147,37 @@ class AttendeeRegister extends Component {
                            
             //@TODO Experiment with 0,2 to see which performs better
         }
-        console.log(eventData.typingPattern);
-        
-        //Store eventData to firebase 
+        //console.log(eventData.typingPattern);
+    
+        let that = this;
 
-        //Snackbar Notifications (Success/ Failure Notification)
-        if(eventData.hasTyped){
-         this.successNotify();
-        }
-        else{
-            this.failureNotify();
-        }
-
-        //Text Highlighting on type to be added
-
-    }
+        this.FBRef.add({
+            ...eventData
+        }).then(function (docRef) {
+                //console.log("Document written with ID: ", docRef.id);
+                if (eventData.hasTyped) {
+                    that.successNotify();
+                }
+                else {
+                    that.failureNotify();
+                }
+            }).catch(function (error) {
+                console.error("Error adding document: ", error);
+            });}
 
     render() {
         const { classes } = this.props;
         return (
         
             <React.Fragment>
-              <Head>
-                <script src="https://www.typingdna.com/scripts/typingdna.js">
-                </script>  
-              </Head>
-
             {this.state.user !== '' ? (
             <React.Fragment>
                 
-                <Navbar page="Create" handleLogout={this.handleLogout.bind(this)} />
+                <Navbar 
+                    page="attendeeRegister" 
+                    handleLogout={this.handleLogout.bind(this)} 
+                    email={this.state.user.email.includes("srmuniv")}
+                />
                 <Grid
                     container
                     spacing={0}
@@ -194,7 +199,6 @@ class AttendeeRegister extends Component {
                         <br />
                         <Typography
                         variant="subtitle2"
-                        component="subtitle2"
                         className={classes.head}
                         style={{ color: "midnightblue" }}
                         >

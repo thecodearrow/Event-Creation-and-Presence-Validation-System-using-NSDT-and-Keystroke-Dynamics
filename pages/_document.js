@@ -25,6 +25,8 @@ class MyDocument extends Document {
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
                     />
+                    <script src="https://www.typingdna.com/scripts/typingdna.js"
+                    />
                 </Head>
                 <body>
                     <Main />

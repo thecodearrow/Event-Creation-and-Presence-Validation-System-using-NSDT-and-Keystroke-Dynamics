@@ -48,10 +48,14 @@ class Attend extends Component {
 
     constructor() {
         super();
+        this.FBRef = loadFirebase()
+            .firestore()
+            .collection("attendees");
         this.state = {
             user: '',
             eventCode:'',
-            formError: false
+            formError: false,
+            KSDtested: false
         }
     }
 
@@ -78,6 +82,12 @@ class Attend extends Component {
                 this.setState({
                     ...this.state,
                     user: user
+                }, async () => {
+                    if (await this.checkKSDRecords()) {
+                        this.setState({
+                            KSDtested: true
+                        })
+                    }
                 })
                 return user
                     .getIdToken()
@@ -95,23 +105,34 @@ class Attend extends Component {
         })
     }
 
+    async checkKSDRecords() {
+        await this.FBRef.where("user", "==", this.state.user.email)
+            .get().then(function (querySnapshot) {
+                if (querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+            })
+            .catch(function (error) {
+                Router.push('/attendeeRegister');
+            });
+        return true;
+    }
+
     handleLogout() {
         loadFirebase().auth().signOut()
     }
 
     handleValidate() {
-        // check if db doc exists and timeout on doc
-        document.location += 'Event?attendString=jbsvjb';
+        window.location += `Event?attendString=${this.state.eventCode}`;
     }
 
     render() {
         const { classes } = this.props;
         return (
           <React.Fragment>
-            {this.state.user !== '' ? (
+            {this.state.user !== '' && this.state.KSDtested ? (
             <React.Fragment>
                 <Navbar
-                    page="Attend"
+                    page="attend"
+                    email = {this.state.user.email.includes("srmuniv")}
                     handleLogout={this.handleLogout.bind(this)}
                 />
                          <Grid

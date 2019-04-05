@@ -80,7 +80,6 @@ class ChirpMessenger extends Component {
             this.sdk = await Chirp({
                     key: CHIRP_API_KEY,
                     onReceiving: () => {
-                        console.log('Receving Data');
                         this.setState({
                             ...this.state,
                             waiting: false,
@@ -89,14 +88,16 @@ class ChirpMessenger extends Component {
                         })
                     },
                     onReceived: data => {
-                        console.log("Received Data",data);
                         if (data.length > 0) {
                             this.setState({
                                 ...this.state,
                                 receiving: false,
-                                received: "Your Presence is validated!",
+                                received: "SUCCESS!",
                                 disabled: false
-                            })
+                            },() => {
+                                this.sdk.stop();
+                                this.props.onSuccessRX(this.toAscii(data));
+                            });
                         } else {
                             this.setState({
                                 ...this.state,
@@ -123,10 +124,6 @@ class ChirpMessenger extends Component {
         this.startSDK();
     }
 
-    componentWillUnmount() {
-        this.sdk.stop();
-    }
-
     render() {
         const { classes } = this.props;
         return (
@@ -137,7 +134,7 @@ class ChirpMessenger extends Component {
                     direction="row"
                     alignItems="center"
                     justify="center"
-                    style={{ minHeight: '90vh' }}
+                    style={{ minHeight: '50vh' }}
                 >
                     <Typography variant="h1">
                         {

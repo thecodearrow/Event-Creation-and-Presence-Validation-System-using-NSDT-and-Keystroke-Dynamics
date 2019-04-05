@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useReducer } from 'react';
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -61,10 +61,14 @@ class Choose extends Component {
 
     constructor() {
         super();
+        this.FBRef = loadFirebase()
+            .firestore()
+            .collection("attendees");
         this.state = {
             user: {
                 email: 'dummy'
-            }
+            },
+            KSDtested: false
         }
     }
 
@@ -74,6 +78,12 @@ class Choose extends Component {
                 this.setState({
                     ...this.state,
                     user: user
+                }, async () => {
+                    if(await this.checkKSDRecords()){
+                        this.setState({
+                            KSDtested: true
+                        })
+                    }
                 })
                 return user
                     .getIdToken()
@@ -85,6 +95,7 @@ class Choose extends Component {
                             body: JSON.stringify({ token })
                         })
                     })
+                        
             } else {
                 Router.push('/');
             }
@@ -95,37 +106,64 @@ class Choose extends Component {
         loadFirebase().auth().signOut()
     }
 
+    async checkKSDRecords() {
+        await this.FBRef.where("user", "==", this.state.user.email)
+            .get().then(function (querySnapshot) {
+                if(querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+            })
+            .catch(function (error) {
+                Router.push('/attendeeRegister');
+            });  
+        return true; 
+    }
+
     render() {
         const { classes } = this.props;
         return (
             <React.Fragment>
                 {
-                    this.state.user.email !== 'dummy' ? (
+                    this.state.user.email !== 'dummy' && this.state.KSDtested ? (
                     <React.Fragment>
-                        <Navbar page="Choose" handleLogout={this.handleLogout.bind(this)} />
+                        <Navbar 
+                            page="choose" 
+                            handleLogout={this.handleLogout.bind(this)} 
+                            email={this.state.user.email.includes("srmuniv")}
+                        />
                         <Grid
                             container
                             spacing={0}
                             direction="row"
                             alignItems="center"
-                            justify="center"
+                            justify="space-evenly"
                             style={{ minHeight: '90vh' }}
                         >
                         {
                             this.state.user.email.includes('srmuniv') ? 
                             ( 
-                            <Grid item xs={10} sm={8}>
-                                <Paper elevation={2} className={classes.buttonContainer}>
-                                    <Button variant="contained" size="large" className={classes.button}>
-                                        <a className={classes.buttonLink} href={`/create`}>Create an Event!</a>
-                                    </Button>
+                            <React.Fragment>
+                                <Grid item>
+                                    <Paper elevation={2} className={classes.buttonContainer}>
+                                        <Button variant="contained" size="large" className={classes.button}>
+                                            <a className={classes.buttonLink} href={`/create`}>Create an Event!</a>
+                                        </Button>
+                                            <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
+                                                If you plan to organize an event, pick this option.
+                                        </Typography>
+                                    </Paper>
+                                </Grid>
+                                <Grid item>
+                                    <Paper elevation={2} className={classes.buttonContainer}>
+                                        <Button variant="contained" size="large" className={classes.button}>
+                                            <a className={classes.buttonLink} href={`/attend`}>Attend an Event!</a>
+                                        </Button>
                                         <Typography variant="subtitle1" align="center" className={classes.buttonInfoTypo}>
-                                            If you plan to organize an event, pick this option.
-                                    </Typography>
-                                </Paper>
-                            </Grid>) :(
+                                            If you have an event code, please pick this option.
+                                        </Typography>
+                                    </Paper>
+                                </Grid>
+                            </React.Fragment>) :(
                                 this.state.user.email.includes('gmail') ?
-                                    (<Grid item xs={10} sm={8}>
+                                    (<Grid item>
                                             <Paper elevation={2} className={classes.buttonContainer}>
                                             <Button variant="contained" size="large" className={classes.button}>
                                                 <a className={classes.buttonLink} href={`/attend`}>Attend an Event!</a>
@@ -134,8 +172,7 @@ class Choose extends Component {
                                                 If you have an event code, please pick this option.
                                             </Typography>
                                         </Paper>
-                                    </Grid>
-                                    ): true
+                                    </Grid>): true
                             )
                         }
                     </Grid>
