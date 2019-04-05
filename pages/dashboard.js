@@ -144,13 +144,19 @@ class Dashboard extends Component {
                             email={this.state.user.email.includes("srmuniv")}
                             handleLogout={this.handleLogout.bind(this)}
                         />
+                        <Typography
+                            variant="h2"
+                            style={{textAlign:'center',marginTop:'15vh'}}
+                        >
+                            Events You have Created
+                        </Typography>
                         <Grid
                             container
                             spacing={0}
                             direction="row"
                             alignItems="center"
                             justify="space-evenly"
-                            style={{ minHeight: "90vh" }}
+                            style={{ minHeight: "50vh" }}
                         >
                         {
                             this.state.user.email/*.includes("srmuniv")*/ ? this.state.eventList.length > 0 ? this.state.eventList.map( (el,i) => (

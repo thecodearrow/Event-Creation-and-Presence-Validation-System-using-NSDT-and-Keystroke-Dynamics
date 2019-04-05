@@ -38,7 +38,8 @@ const styles = theme => ({
     marginRight: theme.spacing.unit
   },
   buttonContainer: {
-    padding:'1em'
+    padding:'1em',
+    border: '1px solid dodgerblue'
   },
   button: {
     position: 'relative',

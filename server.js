@@ -86,7 +86,6 @@ app.prepare()
                 quality : 2,
             }
 
-            console.log(data);
 
             const options = {
                 hostname : base_url,

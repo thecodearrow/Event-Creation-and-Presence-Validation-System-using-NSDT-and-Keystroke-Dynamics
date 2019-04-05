@@ -10,8 +10,9 @@ import { CHIRP_API_KEY } from "../lib/chirp_config";
 
 const styles = {
     card: {
-        minWidth: 275,
-        maxWidth: 300
+        minWidth: 320,
+        maxWidth: 600,
+        border: 'solid 1px dodgerblue'
     },
     bullet: {
         display: 'inline-block',
@@ -43,31 +44,53 @@ class ClassCard extends React.Component {
 
     render() {
         const { classes } = this.props;
-        return (<Card className={classes.card}>
+        return (
+          <Card className={classes.card}>
             <CardContent>
-            <Typography className={classes.title} color="textSecondary" gutterBottom>
-                {this.props.eventCode.substr(0, 6)}
-            </Typography>
-            <Typography variant="h5" component="h2">
-                {this.props.eventName}
-            </Typography>
-            <Typography className={classes.pos}>
-                {`START TIME - ${this.props.eventStart.toLocaleString().substr(0,17)}`}
-            </Typography>
-            <Typography className={classes.pos}>
-                {`END TIME - ${this.props.eventEnd.toLocaleString().substr(0,17)}`}
-            </Typography>
+              <Typography className={classes.title} gutterBottom>
+                <span
+                  style={{fontSize: "1.1em", marginRight:'0.4em'}}
+                >
+                  EVENTCODE -- 
+                </span>
+                <span style={{ color: "dodgerblue", fontSize:'1.5em'}}>
+                  {this.props.eventCode.substr(0, 6)}
+                </span>
+              </Typography>
+              <Typography variant="h4" component="h4">
+                <em>{this.props.eventName}</em>
+              </Typography>
+              <Typography className={classes.pos}>
+                <span style={{ color: "darkblue" }}>START @</span>{" "}
+                {`${this.props.eventStart
+                  .toLocaleString()
+                  .substr(0, 17)}`}
+              </Typography>
+              <Typography className={classes.pos}>
+                <span style={{ color: "darkblue" }}>END @</span>{" "}
+                {`${this.props.eventEnd
+                  .toLocaleString()
+                  .substr(0, 17)}`}
+              </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small" color="primary" onClick={e => {
-                    this.sdk({ key: `${CHIRP_API_KEY}` }).then(sdk => {
-                        sdk.send(this.props.eventCode.substr(6,))
-                    }).catch(console.error)
-                }}>
-                    Take attendance
-                </Button>
+              <Button
+                size="small"
+                color="primary"
+                variant="outlined"
+                onClick={e => {
+                  this.sdk({ key: `${CHIRP_API_KEY}` })
+                    .then(sdk => {
+                      sdk.send(this.props.eventCode.substr(6));
+                    })
+                    .catch(console.error);
+                }}
+              >
+                Take attendance
+              </Button>
             </CardActions>
-        </Card>);
+          </Card>
+        );
     }
 }
 

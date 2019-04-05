@@ -77,6 +77,9 @@ class AttendEvent extends Component {
     }
 
     componentDidMount() {
+        if(this.props.attendString.attendString === undefined){
+            Router.push('/choose');
+        } // don't allow access without attendString
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({
@@ -131,7 +134,7 @@ class AttendEvent extends Component {
         const { classes } = this.props;
         return (
           <React.Fragment>
-            {this.state.user !== '' && this.state.KSDtested ? (
+            {this.state.user !== '' && this.state.KSDtested && this.props.attendString.attendString !== undefined ? (
                 <React.Fragment>
                     <Navbar
                         page="attendEvent"

@@ -8,47 +8,52 @@ import Typography from '@material-ui/core/Typography';
 import Button from "@material-ui/core/Button";
 
 const styles = {
-    root: {
-        flexGrow: 1,
-    },
-    flex: {
-        flexGrow: 1,
-        textTransform:'uppercase'
-    },
+  root: {
+    flexGrow: 1
+  },
+  flex: {
+    flexGrow: 1,
+    letterSpacing: '0.2em'
+  },
+  nav: {
+    background: "linear-gradient(60deg, #21cbf3 65%, #2196f3 35%)"
+  },
+  button: {
+      margin: '0 0.3em'
+  }
 };
-
 function NavBar(props) {
     const { classes } = props;
     const page = props.page === "Login" ? '' : props.page; 
     const link = (page === "Login" || page === "Logout" ? '' : page)
     const whiteListForDashboard = ["create","choose","attend"];
     return <div className={classes.root}>
-        <AppBar position="static" color="primary">
+        <AppBar position="static" className={classes.nav}>
           <Toolbar>
             <Typography variant="h6" color="inherit" className={classes.flex}>
-              Sound Shinobi
+                    <em>Chirp Events</em>
             </Typography>
                 {   page === '' ? '' : whiteListForDashboard.includes(page) ? ( (page === "choose" || page === "attend") && props.email ?
                     (<React.Fragment>
                         <Link href={`/dashboard`}>
-                            <Button aria-label="dashboard" color="inherit">
+                            <Button aria-label="dashboard"variant="outlined" className={classes.button}  color="inherit">
                                 dashboard
                             </Button>
                         </Link> 
                     <Link href={`/${link}`}>
-                        <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                        <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                             Logout
                         </Button>
                     </Link> 
                 </React.Fragment>) : (
                     <Link href={`/${link}`}>
-                        <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                        <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                             Logout
                         </Button>
                     </Link> 
                 )) :
                 (<Link href={`/${link}`}>
-                    <Button aria-label={page} onClick={(e) => props.handleLogout()} color="inherit">
+                    <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                         Logout
                     </Button>
                 </Link> )
