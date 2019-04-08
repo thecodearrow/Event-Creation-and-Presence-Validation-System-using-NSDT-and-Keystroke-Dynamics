@@ -45,7 +45,7 @@ class ClassCard extends React.Component {
     render() {
         const { classes } = this.props;
         return (
-          <Card className={classes.card}>
+          <Card className={classes.card} style={this.props.bgCol ? {backgroundColor:'rgba(250,116,116,0.5)'} : {}}>
             <CardContent>
               <Typography className={classes.title} gutterBottom>
                 <span
@@ -54,7 +54,7 @@ class ClassCard extends React.Component {
                   EVENTCODE -- 
                 </span>
                 <span style={{ color: "dodgerblue", fontSize:'1.5em'}}>
-                  {this.props.eventCode.substr(0, 6)}
+                  {this.props.eventCode}
                 </span>
               </Typography>
               <Typography variant="h4" component="h4">
@@ -77,6 +77,7 @@ class ClassCard extends React.Component {
               <Button
                 size="small"
                 color="primary"
+                disabled={this.props.bgCol}
                 variant="outlined"
                 onClick={e => {
                   this.sdk({ key: `${CHIRP_API_KEY}` })

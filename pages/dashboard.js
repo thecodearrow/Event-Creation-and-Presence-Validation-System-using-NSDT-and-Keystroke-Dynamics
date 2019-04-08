@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
-
+import Button from '@material-ui/core/Button';
 
 import Loader from "../components/Loading";
 import ClassCard from "../components/ClassCard";
@@ -36,15 +36,8 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit
     },
-    buttonContainer: {
-        padding: '1em'
-    },
     button: {
-        position: 'relative',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%,0%)',
-        background: 'linear-gradient(45deg, #2196f3 30%, #21cbf3 90%)'
+        margin: theme.spacing.unit,
     },
     buttonInfoTypo: {
         paddingTop: '0.5em',
@@ -68,7 +61,9 @@ class Dashboard extends Component {
             .collection("attendees");
         this.state = {
             user: '',
-            eventList: []
+            eventList: [],
+            upcoming: false,
+            passed: false
         }
     }
 
@@ -135,44 +130,145 @@ class Dashboard extends Component {
 
     render() {
         const { classes } = this.props;
+        const currDate = new Date().toLocaleString('en-GB');
         return (
-            <React.Fragment>
-                {this.state.user !== '' && this.state.KSDtested ? (
-                    <React.Fragment>
-                        <Navbar
-                            page="dashboard"
-                            email={this.state.user.email.includes("srmuniv")}
-                            handleLogout={this.handleLogout.bind(this)}
-                        />
-                        <Typography
-                            variant="h2"
-                            style={{textAlign:'center',marginTop:'15vh'}}
-                        >
-                            Events You have Created
-                        </Typography>
-                        <Grid
-                            container
-                            spacing={0}
-                            direction="row"
-                            alignItems="center"
-                            justify="space-evenly"
-                            style={{ minHeight: "50vh" }}
-                        >
-                        {
-                            this.state.user.email/*.includes("srmuniv")*/ ? this.state.eventList.length > 0 ? this.state.eventList.map( (el,i) => (
-                                <Grid key={i} item>
-                                    <ClassCard key={i} eventCode={el.id} eventName={el.data.eventName} eventStart={el.data.startDate} eventEnd={el.data.endDate} />
-                                </Grid>
-                            )) : (
-                                <Typography variant="h2"> You have not created any events, yet </Typography> 
-                            ): true
+          <React.Fragment>
+            {this.state.user !== "" && this.state.KSDtested ? (
+              <React.Fragment>
+                <Navbar
+                  page="dashboard"
+                  email={this.state.user.email.includes("srmuniv")}
+                  handleLogout={this.handleLogout.bind(this)}
+                />
+                <Typography
+                  variant="h2"
+                  style={{
+                    textAlign: "center",
+                    marginTop: "15vh",
+                    marginBottom: "6vh"
+                  }}
+                >
+                  Events You have Created
+                </Typography>
+                <Grid
+                  container
+                  spacing={0}
+                  direction="row"
+                  justify="space-evenly"
+                  alignContent="space-around"
+                >
+                  <Grid item>
+                    <Typography inline variant="subtitle2">
+                        FILTER BY:
+                    </Typography>
+                    <Button
+                        color="primary"
+                        disabled={!(this.state.upcoming || this.state.passed)}
+                        onClick={
+                            (e) => {
+                                this.setState({
+                                    upcoming: false,
+                                    passed: false
+                                })
+                            }
                         }
+                        className={classes.button}>
+                        ALL
+                    </Button>
+                    <Button 
+                        color="primary"
+                        disabled={this.state.upcoming}
+                        onClick={
+                          (e) => {
+                              this.setState({
+                                  passed: false,
+                                  upcoming: true
+                              })
+                          }
+                      } 
+                        className={classes.button}>
+                        UPCOMING
+                    </Button>
+                    <Button
+                      color="secondary"
+                      disabled={this.state.passed}
+                      className={classes.button}
+                      onClick={
+                          (e) => {
+                              this.setState({
+                                  upcoming:false,
+                                  passed: true
+                              })
+                          }
+                      }
+                    >
+                      PASSED
+                    </Button>
+                    <Button
+                      href="/create"
+                      color="primary"
+                      variant="contained"
+                      className={classes.button}
+                    >
+                      CREATE NEW +
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  spacing={0}
+                  direction="row"
+                  alignItems="baseline"
+                  justify="space-evenly"
+                  style={{ minHeight: "50vh", marginTop: "4vh" }}
+                >
+                  {this.state.user.email /*.includes("srmuniv")*/ ? (
+                    this.state.eventList.length > 0 ? (
+                      this.state.eventList
+                        .sort( (el1,el2) => {
+                            return (
+                              new Date(
+                                el2.data.startDate
+                              ) -
+                              new Date(
+                                el1.data.startDate
+                              )
+                            );
+                        })
+                        .filter( (el) => {
+                            if(this.state.upcoming){
+                                return el.data.startDate >= currDate
+                            } else if(this.state.passed){
+                                return el.data.endDate <= currDate
+                            } 
+                            return true
+                        })
+                        .map((el, i) => (
+                        <Grid key={i} item>
+                          <ClassCard
+                            key={i}
+                            bgCol={el.data.endDate <= currDate}
+                            eventCode={el.id.substr(0, 6)}
+                            eventName={el.data.eventName}
+                            eventStart={el.data.startDate}
+                            eventEnd={el.data.endDate}
+                          />
                         </Grid>
-                    </React.Fragment>
-                ) : (
-                        <Loader />
-                    )}
-            </React.Fragment>
+                      ))
+                    ) : (
+                        <Typography variant="h2">
+                            You have not created any events, yet
+                        </Typography>
+                    )
+                  ) : (
+                    true
+                  )}
+                </Grid>
+              </React.Fragment>
+            ) : (
+              <Loader />
+            )}
+          </React.Fragment>
         );
     }
 }
