@@ -4,12 +4,22 @@ import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Navbar from '../components/Navbar';
 import Button from '@material-ui/core/Button';
+import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Paper from "@material-ui/core/Paper";
+import Modal from "@material-ui/core/Modal";
+import DateTimePicker from "../components/DateTimePicker";
+import Snackbar from "@material-ui/core/Snackbar";
+import Fade from "@material-ui/core/Fade";
 
 import Loader from "../components/Loading";
 import ClassCard from "../components/ClassCard";
 
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
+import { withSnackbar } from "notistack";
 import "firebase/auth";
 import "isomorphic-unfetch";
 import { Typography } from '../node_modules/@material-ui/core';
@@ -28,9 +38,12 @@ const styles = theme => ({
         fontWeight: "200",
         color: "red"
     },
-    container: {
-        display: "flex",
-        flexWrap: "wrap"
+    // container: {
+    //     display: "flex",
+    //     flexWrap: "wrap"
+    // },
+    form: {
+        height: 0
     },
     textField: {
         marginLeft: theme.spacing.unit,
@@ -46,6 +59,11 @@ const styles = theme => ({
     buttonLink: {
         textDecoration: 'none',
         color: 'white'
+    },
+    modal: {
+        width: '50vw',
+        transform: 'translate(25vw,20vh)',
+        padding: '4em'
     }
 });
 
@@ -63,8 +81,104 @@ class Dashboard extends Component {
             user: '',
             eventList: [],
             upcoming: false,
-            passed: false
+            passed: false,
+            modalOpen:false,
+            location: '',
+            eventName: '',
+            eventCode: '',
+            eventMode: '',
+            eventDate: '',
+            startDate: '',
+            endDate: '',
+            open: false,
+            formError: "ERROR"
         }
+    }
+
+    handleSelectChange(e) {
+    this.setState({
+      ...this.state,
+      location: e.target.value,
+      formError: e.target.value === 'Event Location' ? "ERROR" : (this.state.eventName.length === 0 ?
+        "ERROR" : "")
+    });
+  }
+
+    handleSwitchChange = name => event => {
+        this.setState({ [name]: event.target.checked });
+    }
+
+    handleDateChange(startDate, endDate, eventDate) {
+        if (eventDate.getDate() < new Date().getDate() || eventDate.getMonth() < new Date().getMonth() || eventDate.getFullYear() < new Date().getFullYear() || (startDate.getTime() < new Date().getTime())) {
+        this.setState({
+            formError: "Event Date has already passed",
+            open: true
+        })
+        }
+        else if (startDate > endDate) {
+        this.setState({
+            formError: "Start Time should be ahead of End Time of event",
+            open: true
+        })
+        }
+        else {
+        this.setState({
+            formError: ((this.state.location !== 'Event Location') && (this.state.eventName !== '') ? "" : "ERROR"),
+            open: false,
+            eventDate,
+            startDate,
+            endDate
+        })
+        }
+    }
+
+     submitHandler () {
+      const eventData = {
+          eventName: this.state.eventName,
+          startDate: this.state.startDate.toLocaleString('en-GB'),
+          endDate: this.state.endDate.toLocaleString('en-GB'),
+          eventDate: this.state.eventDate.toLocaleString('en-GB').substr(0,10),
+          location: this.state.location,
+          mode: this.state.eventMode ? "STRICT" : "NOSTRICT"
+      }
+
+      this.FBRef.doc(this.state.eventCode)
+      .update({
+        ...eventData
+      }).then( (docRef) => {
+            this.setState({
+                eventList: this.state.eventList.map( el => {
+                    if(el.id === this.state.eventCode){
+                        return {
+                            id: el.id,
+                            data: {
+                                ...el.data,
+                                eventName: this.state.eventName,
+                                startDate: this.state.startDate.toLocaleString('en-GB'),
+                                endDate: this.state.endDate.toLocaleString('en-GB'),
+                                eventDate: this.state.eventDate.toLocaleString('en-GB').substr(0,10),
+                                mode: this.state.eventMode,
+                                location: this.state.location
+                            }
+                        }
+                    }
+                    return el;
+                }),
+                modalOpen: false,
+                location: '',
+                eventName: '',
+                eventCode: '',
+                eventMode: '',
+                eventDate: '',
+                startDate: '',
+                endDate: '',
+                open: false,
+                formError: "ERROR"
+            })
+      })
+      .catch(function (error) {
+        console.error("Error adding document: ", error);
+      });    
     }
 
     async componentDidMount() {
@@ -113,6 +227,15 @@ class Dashboard extends Component {
         })
     }
 
+    handleChange(e) {
+        this.setState({
+            ...this.state,
+            [e.target.name]: e.target.value,
+            formError: e.target.value.length === 0 ? "ERROR" : (this.state.location === 'Event Location' ?
+                "ERROR" : "")
+        })
+    }
+
     async checkKSDRecords() {
         await this.FBRefAtt.where("user", "==", this.state.user.email)
             .get().then(function (querySnapshot) {
@@ -128,13 +251,177 @@ class Dashboard extends Component {
         loadFirebase().auth().signOut()
     }
 
+    successNotify(eventName) {
+        const message_success = `Successfully Deleted Event:${eventName}`;
+
+        this.props.enqueueSnackbar(message_success, {
+            variant: 'success',
+            anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'center',
+            }
+        });
+
+    }
+
+    failureNotify(eventName) {
+        const message_failure = `Failed to delete ${eventName}`;
+        this.props.enqueueSnackbar(message_failure, {
+            variant: 'error',
+            anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'center',
+            }
+        });
+
+    }
+
+    deleteEvent(eventCode) {
+        const eventToDelete = this.state.eventList.filter( el => {
+            return el.id.startsWith(eventCode);
+        })
+        const eventToDeleteID = eventToDelete[0].id;
+        this.FBRef.doc(eventToDeleteID)
+          .delete()
+          .then(() => {
+              this.setState({
+                eventList : this.state.eventList.filter( el => el.id !== eventToDeleteID)
+              },() => {
+                this.successNotify(eventToDelete[0].data.eventName);
+                })
+            })
+          .catch(() => {
+            this.failureNotify(eventToDelete[0].data.eventName);
+          });
+    }
+
+    openModal(UpdateEventObj){
+        this.setState({
+            modalOpen: true,
+            location: UpdateEventObj.eventLocation,
+            eventName: UpdateEventObj.eventName,
+            eventCode: UpdateEventObj.eventCode,
+            eventMode: UpdateEventObj.eventMode,
+            eventDate:UpdateEventObj.eventDate,
+            startDate:UpdateEventObj.eventStartDate,
+            endDate:UpdateEventObj.eventEndDate
+        })
+        //console.log(UpdateEventObj.eventDate.toLocaleString('en-GB'),new Date().toLocaleDateString('en-GB'))
+    }
+    toUKDateString(dateString){
+        if(typeof(dateString) === 'string'){
+            const month = dateString.substr(0,3);
+            const date = dateString.substr(3,3);
+            return date + month + dateString.substr(6);
+        } else if(typeof(dateString) === 'object'){
+            return dateString;
+        }
+    }
+
+    handleClose = () => {
+      this.setState({ open: false });
+    };
+
     render() {
         const { classes } = this.props;
         const currDate = new Date().toLocaleString('en-GB');
+        const ModalComp = (<Modal 
+            open={this.state.modalOpen} 
+            onBackdropClick={()=>this.setState({modalOpen: false})}
+        >
+            <form
+                className={classes.form}
+                noValidate
+                autoComplete="off"
+            >
+                <Paper elevation={1} className={classes.modal}>
+                    <TextField
+                        variant="outlined"
+                        name="eventName"
+                        id="eventName"
+                        placeholder="Event Name"
+                        fullWidth={true}
+                        value={this.state.eventName}
+                        onChange={e => {
+                            this.handleChange(e);
+                        }}
+                        className={classes.textField}
+                        margin="normal"
+                    />
+                    <DateTimePicker
+                        eventDate = {new Date(this.toUKDateString(this.state.eventDate))}
+                        eventStartDate = {new Date(this.toUKDateString(this.state.startDate))}
+                        eventEndDate = {new Date(this.toUKDateString(this.state.endDate))}
+                        handleDateChange={this.handleDateChange.bind(
+                            this
+                        )}
+                    />
+                    <TextField
+                        variant="outlined"
+                        select
+                        name="location"
+                        className={classes.textField}
+                        value={this.state.location}
+                        onChange={e => {
+                            this.handleSelectChange(e);
+                        }}
+                        SelectProps={{
+                            MenuProps: {
+                                className: classes.menu
+                            }
+                        }}
+                        fullWidth={true}
+                        margin="normal"
+                    >
+                        {["Event Location", "UB", "TP", "Audi"].map(
+                            el => (
+                                <MenuItem key={el} value={el}>
+                                    {el}
+                                </MenuItem>
+                            )
+                        )}
+                    </TextField>
+                    <FormControlLabel
+                        style={{ marginLeft: "0em", marginTop: "1em" }}
+                        control={
+                            <Switch
+                                checked={this.state.eventMode}
+                                onChange={this.handleSwitchChange("mode")}
+                                value="strictMode"
+                                color="primary"
+                            />
+                        }
+                        label="Strict Mode (enforces Biometrics)"
+                    />
+                    <Button
+                        variant="contained"
+                        disabled={!this.state.formError == ""}
+                        color="primary"
+                        fullWidth
+                        style={{ marginTop: "3em", marginLeft: "0" }}
+                        onClick={e => {
+                            this.submitHandler();
+                        }}
+                        className={classes.button}
+                    >
+                        UPDATE
+                    </Button>
+                </Paper>
+            </form>
+        </Modal>);
         return (
           <React.Fragment>
             {this.state.user !== "" && this.state.KSDtested ? (
               <React.Fragment>
+                <Snackbar
+                  open={this.state.open}
+                  onClose={this.handleClose}
+                  TransitionComponent={Fade}
+                  ContentProps={{
+                    'aria-describedby': 'message-id',
+                  }}
+                  message={<span id="message-id">{this.state.formError}</span>}
+                />
                 <Navbar
                   page="dashboard"
                   email={this.state.user.email.includes("srmuniv")}
@@ -179,13 +466,13 @@ class Dashboard extends Component {
                         color="primary"
                         disabled={this.state.upcoming}
                         onClick={
-                          (e) => {
-                              this.setState({
-                                  passed: false,
-                                  upcoming: true
-                              })
-                          }
-                      } 
+                            (e) => {
+                                this.setState({
+                                    passed: false,
+                                    upcoming: true
+                                })
+                            }
+                        } 
                         className={classes.button}>
                         UPCOMING
                     </Button>
@@ -222,6 +509,7 @@ class Dashboard extends Component {
                   justify="space-evenly"
                   style={{ minHeight: "50vh", marginTop: "4vh" }}
                 >
+                  {ModalComp}  
                   {this.state.user.email /*.includes("srmuniv")*/ ? (
                     this.state.eventList.length > 0 ? (
                       this.state.eventList
@@ -248,10 +536,15 @@ class Dashboard extends Component {
                           <ClassCard
                             key={i}
                             bgCol={el.data.endDate <= currDate}
-                            eventCode={el.id.substr(0, 6)}
+                            eventCode={el.id}
                             eventName={el.data.eventName}
                             eventStart={el.data.startDate}
+                            eventDate={el.data.eventDate}
                             eventEnd={el.data.endDate}
+                            eventLocation={el.data.location}
+                            eventMode={el.data.mode}
+                            deleteEvent={this.deleteEvent.bind(this)}
+                            openModal={this.openModal.bind(this)}
                           />
                         </Grid>
                       ))
@@ -277,4 +570,4 @@ Dashboard.propTypes = {
     classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(Dashboard);
+export default withStyles(styles)(withSnackbar(Dashboard));

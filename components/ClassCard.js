@@ -6,6 +6,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Delete from '@material-ui/icons/Delete';
 import { CHIRP_API_KEY } from "../lib/chirp_config";
 
 const styles = {
@@ -34,6 +35,9 @@ class ClassCard extends React.Component {
     constructor() {
         super();
         this.sdk = '';
+        this.state = {
+          modalOpen: false
+        }
     }
 
     async componentDidMount(){
@@ -45,16 +49,25 @@ class ClassCard extends React.Component {
     render() {
         const { classes } = this.props;
         return (
-          <Card className={classes.card} style={this.props.bgCol ? {backgroundColor:'rgba(250,116,116,0.5)'} : {}}>
+          <Card
+            className={classes.card}
+            style={
+              this.props.bgCol
+                ? { backgroundColor: "rgba(250,116,116,0.5)" }
+                : {}
+            }
+          >
             <CardContent>
               <Typography className={classes.title} gutterBottom>
                 <span
-                  style={{fontSize: "1.1em", marginRight:'0.4em'}}
+                  style={{ fontSize: "1.1em", marginRight: "0.4em" }}
                 >
-                  EVENTCODE -- 
+                  EVENTCODE --
                 </span>
-                <span style={{ color: "dodgerblue", fontSize:'1.5em'}}>
-                  {this.props.eventCode}
+                <span
+                  style={{ color: "dodgerblue", fontSize: "1.5em" }}
+                >
+                  {this.props.eventCode.substr(0,6)}
                 </span>
               </Typography>
               <Typography variant="h4" component="h4">
@@ -88,6 +101,37 @@ class ClassCard extends React.Component {
                 }}
               >
                 Take attendance
+              </Button>
+              <Button
+                size="small"
+                disabled={this.props.bgCol}
+                style={
+                  this.props.bgCol
+                    ? { color: "darkgrey" }
+                    : { color: "red" }
+                }
+                onClick={() => this.props.deleteEvent(eventCode)}
+              >
+                <Delete />
+              </Button>
+              <Button
+                size="small"
+                color="primary"
+                disabled={this.props.bgCol}
+                variant="contained"
+                onClick={() =>
+                  this.props.openModal({
+                    eventCode: this.props.eventCode,
+                    eventName: this.props.eventName,
+                    eventStartDate: this.props.eventStart,
+                    eventEndDate: this.props.eventEnd,
+                    eventDate: this.props.eventDate,
+                    eventMode: this.props.eventMode,
+                    eventLocation: this.props.eventLocation
+                  })
+                }
+              >
+                Update
               </Button>
             </CardActions>
           </Card>

@@ -15,31 +15,54 @@ const styles = {
 
 class DateTimePicker extends React.Component {
   state = {
-    selectedEventDate: new Date(),
-    selectedStartDate: new Date(),
-    selectedEndDate: new Date()
+    selectedEventDate:
+      this.props.eventDate === undefined ? new Date() : this.props.eventDate,
+    selectedStartDate:
+      this.props.eventStartDate === undefined
+        ? new Date()
+        : this.props.eventStartDate,
+    selectedEndDate:
+      this.props.eventEndDate === undefined
+        ? new Date()
+        : this.props.eventEndDate
   };
 
-  handleDateChange(i,date) {
-    let whichDate = i == 1 ? {
+  handleDateChange(i, date) {
+    let whichDate =
+      i == 1
+        ? {
             selectedStartDate: date
-        } : ( i == 2 ? {
+          }
+        : i == 2
+        ? {
             selectedEndDate: date
-    } : {
-        selectedStartDate: date,
-        selectedEndDate: date,
-        selectedEventDate: date
-    });
-    this.setState({
-        ...whichDate,
-    },() =>{
-        this.props.handleDateChange(this.state.selectedStartDate,this.state.selectedEndDate,this.state.selectedEventDate);
-    });
-  };
+          }
+        : {
+            selectedStartDate: date,
+            selectedEndDate: date,
+            selectedEventDate: date
+          };
+    this.setState(
+      {
+        ...whichDate
+      },
+      () => {
+        this.props.handleDateChange(
+          this.state.selectedStartDate,
+          this.state.selectedEndDate,
+          this.state.selectedEventDate
+        );
+      }
+    );
+  }
 
   render() {
     const { classes } = this.props;
-    const { selectedEventDate, selectedStartDate, selectedEndDate } = this.state;
+    const {
+      selectedEventDate,
+      selectedStartDate,
+      selectedEndDate
+    } = this.state;
 
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -49,21 +72,21 @@ class DateTimePicker extends React.Component {
             label="Event Date"
             variant="outlined"
             value={selectedEventDate}
-            onChange={this.handleDateChange.bind(this,0)}
+            onChange={this.handleDateChange.bind(this, 0)}
           />
           <TimePicker
             margin="normal"
             label="Event Start Time"
             variant="outlined"
             value={selectedStartDate}
-            onChange={this.handleDateChange.bind(this,1)}
+            onChange={this.handleDateChange.bind(this, 1)}
           />
           <TimePicker
             margin="normal"
             variant="outlined"
             label="Event End Time"
             value={selectedEndDate}
-            onChange={this.handleDateChange.bind(this,2)}
+            onChange={this.handleDateChange.bind(this, 2)}
           />
         </Grid>
       </MuiPickersUtilsProvider>
