@@ -247,10 +247,6 @@ class Dashboard extends Component {
         return true; 
     }
 
-    handleLogout() {
-        loadFirebase().auth().signOut()
-    }
-
     successNotify(eventName) {
         const message_success = `Successfully Deleted Event:${eventName}`;
 
@@ -321,6 +317,10 @@ class Dashboard extends Component {
     handleClose = () => {
       this.setState({ open: false });
     };
+
+    handleLogout() {
+        loadFirebase().auth().signOut()
+    }
 
     render() {
         const { classes } = this.props;

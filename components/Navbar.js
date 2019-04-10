@@ -38,7 +38,7 @@ function NavBar(props) {
                         <Button aria-label="dashboard" href="/dashboard" variant="outlined" className={classes.button}  color="inherit">
                             Dashboard
                         </Button>
-                    <Link href={`/${link}`}>
+                    <Link href={`/`}>
                         <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                             Logout
                         </Button>
@@ -51,13 +51,13 @@ function NavBar(props) {
                         <Button aria-label="dashboard" href="/dashboard" variant="outlined" className={classes.button} color="inherit">
                             Dashboard
                         </Button>
-                        <Link href={`/${link}`}>
+                        <Link href={`/`}>
                             <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                                 Logout
                             </Button>
                         </Link> 
                     </React.Fragment>) : (
-                        <Link href={`/${link}`}>
+                        <Link href={`/`}>
                             <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                                 Logout
                             </Button>
@@ -67,13 +67,13 @@ function NavBar(props) {
                     <Button aria-label="attend" href="/attend" variant="outlined" className={classes.button} color="inherit">
                         Attend
                     </Button>
-                    <Link href={`/${link}`}>
+                    <Link href={`/`}>
                         <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                             Logout
                         </Button>
                     </Link>
                 </React.Fragment>) :
-                (<Link href={`/${link}`}>
+                (<Link href={`/`}>
                     <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                         Logout
                     </Button>
