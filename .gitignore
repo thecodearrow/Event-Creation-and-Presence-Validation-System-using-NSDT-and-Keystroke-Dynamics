@@ -3,3 +3,4 @@
 .env
 *firebase*
 /lib
+/https

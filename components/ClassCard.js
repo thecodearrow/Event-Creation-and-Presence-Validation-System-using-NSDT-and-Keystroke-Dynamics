@@ -110,7 +110,7 @@ class ClassCard extends React.Component {
                     ? { color: "darkgrey" }
                     : { color: "red" }
                 }
-                onClick={() => this.props.deleteEvent(eventCode)}
+                onClick={() => this.props.deleteEvent(this.props.eventCode)}
               >
                 <Delete />
               </Button>
