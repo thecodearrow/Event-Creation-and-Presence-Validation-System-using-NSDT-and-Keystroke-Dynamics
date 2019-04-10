@@ -43,4 +43,6 @@ export function loadFirebase() {
 ```
 
 ##### NOTE:
- To use the ChirpSDK, ensure that you have signed up at [chirp.io](https://chirp.io/) and have added a valid application origin. 
+- To use the TypingDNA API please sign up @ [typingdna.com](https://www.typingdna.com/)
+- To use the HTTPS protocol on the server to simplify permissions on clients, first create a directory named `/https` in the root directory of your project and follow the instruction @ [How to get HTTPS working on your local development environment in 5 minutes](https://medium.freecodecamp.org/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec)
+- To use the ChirpSDK, ensure that you have signed up at [chirp.io](https://chirp.io/) and have added a valid application origin. 
