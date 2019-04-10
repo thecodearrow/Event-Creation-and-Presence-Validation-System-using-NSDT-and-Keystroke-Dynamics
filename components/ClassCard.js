@@ -104,13 +104,8 @@ class ClassCard extends React.Component {
               </Button>
               <Button
                 size="small"
-                disabled={this.props.bgCol}
-                style={
-                  this.props.bgCol
-                    ? { color: "darkgrey" }
-                    : { color: "red" }
-                }
-                onClick={() => this.props.deleteEvent(eventCode)}
+                style={{ color: "red" }}
+                onClick={() => this.props.deleteEvent(this.props.eventCode)}
               >
                 <Delete />
               </Button>

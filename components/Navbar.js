@@ -33,25 +33,46 @@ function NavBar(props) {
             <Typography variant="h6" color="inherit" className={classes.flex}>
                     <em>Chirp Events</em>
             </Typography>
-                {   page === '' ? '' : whiteListForDashboard.includes(page) ? ( (page === "choose" || page === "attend") && props.email ?
+                {   page === '' ? '' : whiteListForDashboard.includes(page) ? ( (page === "choose") && props.email ?
                     (<React.Fragment>
-                        <Link href={`/dashboard`}>
-                            <Button aria-label="dashboard"variant="outlined" className={classes.button}  color="inherit">
-                                dashboard
+                        <Button aria-label="dashboard" href="/dashboard" variant="outlined" className={classes.button}  color="inherit">
+                            Dashboard
+                        </Button>
+                    <Link href={`/${link}`}>
+                        <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
+                            Logout
+                        </Button>
+                    </Link> 
+                </React.Fragment>) : (page === "attend" && props.email) ? (
+                    <React.Fragment>
+                        <Button aria-label="create" href="/create" variant="outlined" className={classes.button} color="inherit">
+                            Create
+                        </Button>
+                        <Button aria-label="dashboard" href="/dashboard" variant="outlined" className={classes.button} color="inherit">
+                            Dashboard
+                        </Button>
+                        <Link href={`/${link}`}>
+                            <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
+                                Logout
                             </Button>
                         </Link> 
+                    </React.Fragment>) : (
+                        <Link href={`/${link}`}>
+                            <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
+                                Logout
+                            </Button>
+                        </Link>)
+                    ) : page === 'dashboard' ? 
+                (<React.Fragment>
+                    <Button aria-label="attend" href="/attend" variant="outlined" className={classes.button} color="inherit">
+                        Attend
+                    </Button>
                     <Link href={`/${link}`}>
                         <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                             Logout
                         </Button>
-                    </Link> 
-                </React.Fragment>) : (
-                    <Link href={`/${link}`}>
-                        <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
-                            Logout
-                        </Button>
-                    </Link> 
-                )) :
+                    </Link>
+                </React.Fragment>) :
                 (<Link href={`/${link}`}>
                     <Button aria-label={page} onClick={(e) => props.handleLogout()} variant="outlined" className={classes.button} color="inherit">
                         Logout

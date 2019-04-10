@@ -146,7 +146,7 @@ class AttendeeVerify extends Component {
             }      
         });
         setTimeout(() => {
-            window.location = "http://" + window.location.host + '/choose';
+            window.location = "https://" + window.location.host + '/choose';
         }, 4000);
 
     }

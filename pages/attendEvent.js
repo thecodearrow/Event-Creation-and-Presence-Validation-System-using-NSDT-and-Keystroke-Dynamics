@@ -80,6 +80,7 @@ class AttendEvent extends Component {
         if(this.props.attendString.attendString === undefined){
             Router.push('/choose');
         } // don't allow access without attendString
+
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
                 this.setState({

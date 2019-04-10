@@ -9,7 +9,13 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 const https = require('https');
+const fs = require('fs');
 const querystring = require('querystring');
+const { parse } = require('url')
+
+const privateKey = fs.readFileSync('https/server.key');
+const certificate = fs.readFileSync('https/server.crt');
+
 const firebase = admin.initializeApp(
     {
         credential: admin.credential.cert(require('./lib/firebase_server')),
@@ -23,7 +29,6 @@ const typingDNA = require('./lib/typingDNA_config').typingDNA;
 app.prepare()
     .then(() => {
         const server = express()
-
         server.use(bodyParser.json())
         server.use(
             session({
@@ -128,10 +133,18 @@ app.prepare()
             return handle(req, res)
         })
 
-        server.listen(3000, (err) => {
-            if (err) throw err
-            console.log('> Ready on http://localhost:3000')
+        const httpsServer = https.createServer({ key: privateKey, cert: certificate }, (req,res) => {
+            server(req,res);
         })
+        .listen( 5000, err => {
+            if(err) throw err;
+            console.log("HTTPS server running on PORT 5000");
+        })
+
+        // server.listen(3000, (err) => {
+        //     if (err) throw err
+        //     console.log('> Ready on http://localhost:3000')
+        // })
     })
     .catch((ex) => {
         console.error(ex.stack)

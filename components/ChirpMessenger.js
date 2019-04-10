@@ -108,7 +108,7 @@ class ChirpMessenger extends Component {
                     }
                 })
             } catch (err){
-                console.log(err);
+                console.dir(err);
             }
             this.setState({
                 ...this.state,
@@ -117,6 +117,8 @@ class ChirpMessenger extends Component {
     }
 
     componentDidMount() {
+        if (!"WebAssembly" in window)
+          window.alert("WebAssembly is not supported in this browser");
         this.setState({
             ...this.state,
             waiting: true
