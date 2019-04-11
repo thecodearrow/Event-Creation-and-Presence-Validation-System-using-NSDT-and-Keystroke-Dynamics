@@ -510,7 +510,7 @@ class Dashboard extends Component {
                   style={{ minHeight: "50vh", marginTop: "4vh" }}
                 >
                   {ModalComp}  
-                  {this.state.user.email /*.includes("srmuniv")*/ ? (
+                  {this.state.user.email.includes("srmuniv") ? (
                     this.state.eventList.length > 0 ? (
                       this.state.eventList
                         .sort( (el1,el2) => {

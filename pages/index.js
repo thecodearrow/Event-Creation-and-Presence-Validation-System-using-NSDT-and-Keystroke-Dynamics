@@ -81,7 +81,7 @@ class Login extends Component {
         return (
             <React.Fragment>
                 {
-                    !this.props.user ? (
+                    this.props.user === null ? (
                     <React.Fragment>
                         <Navbar page="Login" />
                         <Grid
@@ -96,42 +96,16 @@ class Login extends Component {
                             <Grid item xs={10} sm={4}>
                                 <Paper className={classes.root} elevation={2}>
                                     <Typography variant="h5" component="h5" className={classes.head}>
-                                        LOGIN
+                                        Google OAuth Login
                                     </Typography>
-                                    <Typography variant="h6" className={classes.instructions}>
-                                        For Organizers:<br/>Please use your official SRM email-id
+                                    <Typography variant="subtitle2" className={classes.instructions}>
+                                        (Organizers, please use your official SRM Email-ID)
                                     </Typography>
-                                    {/* <form className={classes.container} noValidate autoComplete="off">
-                                        <TextField
-                                            name="facultyEmail"
-                                            id="Faculty E-Mail"
-                                            label="Faculty E-Mail"
-                                            error={this.state.errEmail}
-                                            placeholder="Faculty E-Mail"
-                                            fullWidth={true}
-                                            value={this.state.facultyEmail}
-                                            onChange={(e) => { this.handleChange(e) }}
-                                            className={classes.textField}
-                                            margin="normal"
-                                        />
-                                        <TextField
-                                            name="password"
-                                            type="password"
-                                            id="Password"
-                                            label="Password"
-                                            error={this.state.errPassword}
-                                            placeholder="Password"
-                                            fullWidth={true}
-                                            value={this.state.password}
-                                            onChange={(e) => { this.handleChange(e) }}
-                                            className={classes.textField}
-                                            margin="normal"
-                                        /> */}
                                         <Button
                                             variant="contained"
                                             color="primary"
                                             fullWidth
-                                            style = {{marginTop:'3em',marginLeft:'0'}}
+                                            style = {{marginTop:'2em',marginLeft:'0'}}
                                             onClick = {(e) => {this.handleLogin()}}
                                             className={classes.button}
                                         >

@@ -123,7 +123,7 @@ class AttendeeRegister extends Component {
             horizontal: 'center',
         }
       });
-
+        
     }
 
     failureNotify(){
@@ -149,17 +149,25 @@ class AttendeeRegister extends Component {
         }
         //console.log(eventData.typingPattern);
     
-        let that = this;
 
         this.FBRef.add({
             ...eventData
-        }).then(function (docRef) {
+        }).then( (docRef) => {
                 //console.log("Document written with ID: ", docRef.id);
                 if (eventData.hasTyped) {
-                    that.successNotify();
+                    this.successNotify()
+                    this.setState({
+                        ksdTest: ''
+                    }, () => {
+                        Router.push('/choose');
+                    })
                 }
                 else {
-                    that.failureNotify();
+                    this.failureNotify();
+                    this.setState({
+                        ksdTest: '',
+                        hasTyped: false
+                    })
                 }
             }).catch(function (error) {
                 console.error("Error adding document: ", error);

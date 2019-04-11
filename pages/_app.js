@@ -24,14 +24,14 @@ class MyApp extends App {
         const { Component, pageProps } = this.props;
         return (
             <SnackbarProvider maxSnack={1} iconVariant={{
-        success: '😃 ✅   ',
-        error: '😐 👎    ',
-        warning: '⚠️',
-        info: 'ℹ️',
-    }}>
+                success: '😃 ✅   ',
+                error: '😐 👎    ',
+                warning: '⚠️',
+                info: 'ℹ️',
+            }}>
             <Container>
                 <Head>
-                    <title>Sound Shinobi</title>
+                    <title>ChirpNext | Events</title>
                 </Head>
                 {}
                 <JssProvider
