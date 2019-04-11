@@ -122,8 +122,9 @@ class AttendeeRegister extends Component {
             vertical: 'bottom',
             horizontal: 'center',
         }
-      });
+        });
         
+        Router.push('/choose');
     }
 
     failureNotify(){
@@ -135,8 +136,8 @@ class AttendeeRegister extends Component {
             horizontal: 'center',
         }
       });
-
     }
+
     submitHandler () {
         
         const eventData = {
@@ -156,17 +157,11 @@ class AttendeeRegister extends Component {
                 //console.log("Document written with ID: ", docRef.id);
                 if (eventData.hasTyped) {
                     this.successNotify()
-                    this.setState({
-                        ksdTest: ''
-                    }, () => {
-                        Router.push('/choose');
-                    })
                 }
                 else {
-                    this.failureNotify();
+                    this.failureNotify()
                     this.setState({
-                        ksdTest: '',
-                        hasTyped: false
+                        ksdTest: ''
                     })
                 }
             }).catch(function (error) {
