@@ -81,7 +81,7 @@ class Login extends Component {
         return (
             <React.Fragment>
                 {
-                    this.props.user === null ? (
+                    !this.props.user ? (
                     <React.Fragment>
                         <Navbar page="Login" />
                         <Grid
@@ -115,8 +115,7 @@ class Login extends Component {
                             </Grid>
                             <Grid item xs={1} sm={4} />
                         </Grid>
-                    </React.Fragment>) :
-                    <Loading />
+                    </React.Fragment>) : <Loading />
                 }
             </React.Fragment>);
     }
