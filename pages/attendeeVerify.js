@@ -215,7 +215,6 @@ class AttendeeVerify extends Component {
             user: this.state.user.email,
             currentTypingPattern:this.tdna.getTypingPattern({type:0, length:150}),
             attendanceStatus:true //to be updated based on match(tp1,tp2) and firebase retrieval status
-            
         }
         //console.log(eventData.currentTypingPattern);
 

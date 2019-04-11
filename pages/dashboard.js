@@ -63,7 +63,7 @@ const styles = theme => ({
     modal: {
         width: '50vw',
         transform: 'translate(25vw,20vh)',
-        padding: '4em'
+        padding: '2em'
     }
 });
 

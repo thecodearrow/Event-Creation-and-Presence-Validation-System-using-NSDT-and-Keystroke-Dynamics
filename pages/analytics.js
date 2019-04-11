@@ -59,39 +59,50 @@ const styles = theme => ({
 class Attendance extends Component {
   constructor() {
     super();
+    this.FBRef = loadFirebase()
+        .firestore()
+        .collection("events");
     this.state = {
-        user: ''
+        user: '',
+        eventCode: window.location.href.split("/").pop()
     }
   }
 
-//   static async getInitialProps({ req,res,query }) {
-//         return {
-//             query,
-//             dayIndex: new Date().toString().substring(3,15)
-//         }
-//     }
-
-  componentDidMount() {
-      loadFirebase().auth().onAuthStateChanged(user => {
-            if (user) {
-                this.setState({
-                    ...this.state,
-                    user: user 
-                })
-                return user
-                    .getIdToken()
-                    .then(token => {
-                        return fetch('/api/login', {
-                            method: 'POST',
-                            headers: new Headers({ 'Content-Type': 'application/json' }),
-                            credentials: 'same-origin',
-                            body: JSON.stringify({ token })
-                        })
+  async componentDidMount() {
+    loadFirebase().auth().onAuthStateChanged(user => {
+        if (user) {
+            this.setState({
+                ...this.state,
+                user: user 
+            })
+            return user
+                .getIdToken()
+                .then(token => {
+                    return fetch('/api/login', {
+                        method: 'POST',
+                        headers: new Headers({ 'Content-Type': 'application/json' }),
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ token })
                     })
-            } else {
-                Router.push('/');
-            }
-        })
+                })
+        } else {
+            Router.push('/');
+        }
+    })
+      await this.FBRef.doc(this.state.eventCode)
+          .get()
+          .then( doc => {
+              this.setState({
+                  eventName: doc.data().eventName,
+                  location: doc.data().location,
+                  endDate: doc.data().endDate,
+                  startDate: doc.data().startDate,
+                  mode: doc.data().mode
+              })
+          })
+          .catch(function (error) {
+              console.log("Error getting documents: ", error);
+          })
   }
 
   handleLogout() {
@@ -107,16 +118,19 @@ class Attendance extends Component {
         <React.Fragment>
             {
                 this.state.user === '' ? <Loader /> : 
-                    (
-                    <React.Fragment>
-                    <Navbar page="Attendance" handleLogout={this.handleLogout.bind(this)} />
+                (<React.Fragment>
+                    <Navbar 
+                        page="analytics"
+                        email={this.state.user.email.includes("srmuniv")}
+                        handleLogout={this.handleLogout.bind(this)}
+                    />
                     <Typography
                     component="h3"
                     variant="h3"
                     gutterBottom
                     className={classes.mainHeader}
                     >
-                    {}
+                    {this.state.eventName} @ {this.state.location}
                     </Typography>
                     <Typography
                     component="h5"
@@ -124,7 +138,8 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.sub1Header}
                     >
-                    {``}
+                    From - {this.state.startDate !== undefined ? this.state.startDate.toLocaleString().substr(0,17):true}<br/> 
+                    To - {this.state.startDate !== undefined ? this.state.endDate.toLocaleString().substr(0,17):true}
                     </Typography>
                     <Typography
                     component="h6"
@@ -132,7 +147,8 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.sub2Header}
                     >
-                    {``}
+                    {this.state.mode === "STRICT" ? "Keystroke Biometrics are used to authenticate attendees" : 
+                    "No Biometrics will be enforced"}
                     </Typography>
                     <Divider className={classes.divider} />
                     <Grid
@@ -142,11 +158,9 @@ class Attendance extends Component {
                     justify="space-around"
                     >
                         <Grid item>
-                            {/* <RollTable
-                                dayIndex={t}
-                                courseCode={}
-                                tdata={}
-                            /> */}
+                            <RollTable
+                                eventCode={this.state.eventCode}
+                            />
                         </Grid>
                     </Grid>
                 </React.Fragment>) 
