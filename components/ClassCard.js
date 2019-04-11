@@ -41,7 +41,7 @@ class ClassCard extends React.Component {
         this.state = {
           modalOpen: false,
           dialogOpen: false
-        }
+        };
     }
 
     toggleDialog () {
@@ -70,14 +70,16 @@ class ClassCard extends React.Component {
 
     render() {
         const { classes } = this.props;
+        const currDate = new Date().toLocaleString('en-GB');
         return (
           <React.Fragment>
-            <AlertDialog open={this.state.dialogOpen}
-              toggleDialog = {this.toggleDialog.bind(this)}
+            <AlertDialog
+              open={this.state.dialogOpen}
+              toggleDialog={this.toggleDialog.bind(this)}
               title="Permission to play 16kHz Audio Message Localiser"
               message="A high-frequency sound (16kHZ) lasting about 1 second will be played for the purpose of acoustically localising your audience. Please ensure audibility to all devices.
               Are you ready?"
-              agreeCB = {this.agreeCB.bind(this)}
+              agreeCB={this.agreeCB.bind(this)}
             />
             <Card
               className={classes.card}
@@ -97,7 +99,7 @@ class ClassCard extends React.Component {
                   <span
                     style={{ color: "dodgerblue", fontSize: "1.5em" }}
                   >
-                    {this.props.eventCode.substr(0,6)}
+                    {this.props.eventCode.substr(0, 6)}
                   </span>
                 </Typography>
                 <Typography variant="h4" component="h4">
@@ -123,18 +125,19 @@ class ClassCard extends React.Component {
                   disabled={this.props.bgCol}
                   variant="outlined"
                   onClick={e => {
-                      this.setState({
-                        dialogOpen: true
-                      })
-                    }
-                  }
+                    this.setState({
+                      dialogOpen: true
+                    });
+                  }}
                 >
                   Take attendance
                 </Button>
                 <Button
                   size="small"
                   style={{ color: "red" }}
-                  onClick={() => this.props.deleteEvent(this.props.eventCode)}
+                  onClick={() =>
+                    this.props.deleteEvent(this.props.eventCode)
+                  }
                 >
                   <Delete />
                 </Button>
@@ -160,13 +163,16 @@ class ClassCard extends React.Component {
                 <Button
                   size="small"
                   color="primary"
-                  disabled={this.props.bgCol}
+                  disabled={this.props.eventStart >= currDate}
                   variant="contained"
                   onClick={() => {
-                      Router.push(`/analytics?eventCode=${this.props.eventCode}`, 
-                      `/stats/${encodeURIComponent(this.props.eventCode)}`)
-                    }
-                  }
+                    Router.push(
+                      `/analytics?eventCode=${this.props.eventCode}`,
+                      `/stats/${encodeURIComponent(
+                        this.props.eventCode
+                      )}`
+                    );
+                  }}
                 >
                   Analytics
                 </Button>

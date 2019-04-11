@@ -36,7 +36,7 @@ const styles = theme => ({
     sub1Header: {
         marginTop: '5rem',
         textAlign: 'center',
-        textTransform: 'uppercase',
+        textTransform: 'titlecase',
         letterSpacing: '2px'
     },
     sub2Header: {
@@ -56,7 +56,7 @@ const styles = theme => ({
     }
 });
 
-class Attendance extends Component {
+class Analytics extends Component {
   constructor() {
     super();
     this.FBRef = loadFirebase()
@@ -138,8 +138,8 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.sub1Header}
                     >
-                    From - {this.state.startDate !== undefined ? this.state.startDate.toLocaleString().substr(0,17):true}<br/> 
-                    To - {this.state.startDate !== undefined ? this.state.endDate.toLocaleString().substr(0,17):true}
+                    From - {this.state.startDate !== undefined ? new Date(this.state.startDate).toString().substr(0,21):true}<br/> 
+                    To - {this.state.startDate !== undefined ? new Date(this.state.endDate).toString().substr(0,21):true}
                     </Typography>
                     <Typography
                     component="h6"
@@ -149,6 +149,12 @@ class Attendance extends Component {
                     >
                     {this.state.mode === "STRICT" ? "Keystroke Biometrics are used to authenticate attendees" : 
                     "No Biometrics will be enforced"}
+                    </Typography>
+                    <Typography
+                        variant="subtitle1"
+                        align="center"
+                    >
+                        <em>Please do not refresh this page.</em>
                     </Typography>
                     <Divider className={classes.divider} />
                     <Grid
@@ -170,8 +176,8 @@ class Attendance extends Component {
   }
 }
 
-Attendance.propTypes = {
+Analytics.propTypes = {
     classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(Attendance);
+export default withStyles(styles)(Analytics);
