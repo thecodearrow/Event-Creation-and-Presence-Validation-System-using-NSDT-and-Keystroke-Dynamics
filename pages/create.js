@@ -167,7 +167,7 @@ class Create extends Component {
       this.FBRef.add({
         ...eventData
       }).then(function (docRef) {
-        window.location = "http://" + window.location.host + '/dashboard';
+        window.location = "https://" + window.location.host + '/dashboard';
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);

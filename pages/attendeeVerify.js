@@ -99,7 +99,7 @@ class AttendeeVerify extends Component {
                         buttonActive: true
                     })
                     if (this.eCode === 'attendeeVerify') {
-                        window.location = "http://" + window.location.host + '/choose';
+                        window.location = "https://" + window.location.host + '/choose';
                     }
                     if (await this.checkKSDRecords()) {
                         this.setState({

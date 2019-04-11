@@ -9,7 +9,6 @@ import Navbar from '../components/Navbar';
 import Divider from '@material-ui/core/Divider';
 
 import { loadFirebase } from '../lib/firebase_client';
-import { CHIRP_API_KEY } from "../lib/chirp_config";
 
 import "firebase/auth";
 import Router from 'next/router';
@@ -65,12 +64,12 @@ class Attendance extends Component {
     }
   }
 
-  static async getInitialProps({ req,res,query }) {
-        return {
-            query,
-            dayIndex: new Date().toString().substring(3,15)
-        }
-    }
+//   static async getInitialProps({ req,res,query }) {
+//         return {
+//             query,
+//             dayIndex: new Date().toString().substring(3,15)
+//         }
+//     }
 
   componentDidMount() {
       loadFirebase().auth().onAuthStateChanged(user => {
@@ -93,11 +92,6 @@ class Attendance extends Component {
                 Router.push('/');
             }
         })
-        const chirp = new ChirpConnect(CHIRP_API_KEY);
-        const payload = new Uint8Array([1,2,7,8,0])
-        chirp.send(payload, err => {
-            err ? console.error("An error occured") : true
-        })
   }
 
   handleLogout() {
@@ -108,9 +102,6 @@ class Attendance extends Component {
 
   render() {
     const { classes } = this.props;
-    const courseDetails = {
-      ...this.props.query
-    };
 
     return (
         <React.Fragment>
@@ -125,7 +116,7 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.mainHeader}
                     >
-                    {decodeURIComponent(courseDetails.name)}
+                    {}
                     </Typography>
                     <Typography
                     component="h5"
@@ -133,7 +124,7 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.sub1Header}
                     >
-                    {`${courseDetails.code.substr(0,6)} | section - ${courseDetails.code.substr(7)}`}
+                    {``}
                     </Typography>
                     <Typography
                     component="h6"
@@ -141,7 +132,7 @@ class Attendance extends Component {
                     gutterBottom
                     className={classes.sub2Header}
                     >
-                    {`Semester ${courseDetails.sem} | Year ${courseDetails.year}`}
+                    {``}
                     </Typography>
                     <Divider className={classes.divider} />
                     <Grid
@@ -151,11 +142,11 @@ class Attendance extends Component {
                     justify="space-around"
                     >
                         <Grid item>
-                            <RollTable
-                                dayIndex={this.props.dayIndex}
-                                courseCode={courseDetails.code}
-                                tdata={this.props.courses}
-                            />
+                            {/* <RollTable
+                                dayIndex={t}
+                                courseCode={}
+                                tdata={}
+                            /> */}
                         </Grid>
                     </Grid>
                 </React.Fragment>) 

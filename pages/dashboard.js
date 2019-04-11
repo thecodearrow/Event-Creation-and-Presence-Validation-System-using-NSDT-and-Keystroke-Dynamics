@@ -222,7 +222,7 @@ class Dashboard extends Component {
                     })
             } else {
                 //this.handleLogout();
-                window.location = `http://${window.location.host}/`;
+                window.location = `https://${window.location.host}/`;
             }
         })
     }
