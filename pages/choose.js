@@ -66,10 +66,8 @@ class Choose extends Component {
             .firestore()
             .collection("attendees");
         this.state = {
-            user: {
-                email: 'dummy'
-            },
-            KSDtested: false
+            user: '',
+            KSDtested: null
         }
     }
 
@@ -108,14 +106,20 @@ class Choose extends Component {
     }
 
     async checkKSDRecords() {
-        await this.FBRef.where("user", "==", this.state.user.email)
+        const res = await this.FBRef.where("user", "==", this.state.user.email)
             .get().then(function (querySnapshot) {
-                if(querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+                if(querySnapshot.docs.length === 0) {
+                    Router.push('/attendeeRegister');
+                    return false;
+                }
+                else {
+                    return true;
+                }
             })
             .catch(function (error) {
                 Router.push('/attendeeRegister');
             });  
-        return true; 
+        return res; 
     }
 
     render() {
@@ -123,7 +127,7 @@ class Choose extends Component {
         return (
             <React.Fragment>
                 {
-                    this.state.user.email !== 'dummy' && this.state.KSDtested ? (
+                    (typeof(this.state.user) !== "string" && this.state.KSDtested !== null) ? (
                     <React.Fragment>
                         <Navbar 
                             page="choose" 

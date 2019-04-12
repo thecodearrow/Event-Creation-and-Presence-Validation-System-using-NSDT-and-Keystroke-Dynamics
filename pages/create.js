@@ -62,6 +62,9 @@ class Create extends Component {
     constructor() {
         super();
         this.FBRef = loadFirebase().firestore().collection('events');
+        this.FBRefAtt = loadFirebase()
+            .firestore()
+            .collection("attendees");
         this.state = {
             user: '',
             eventName: '',
@@ -71,6 +74,7 @@ class Create extends Component {
             eventDate: '',
             mode: false,
             open: false,
+            KSDtested: null,
             formError: "ERROR"
         }
     }
@@ -88,13 +92,39 @@ class Create extends Component {
       this.setState({ [name]: event.target.checked });
     }
 
-    componentDidMount() {
+     async checkKSDRecords() {
+      const res = await this.FBRefAtt.where("user", "==", this.state.user.email)
+            .get().then(function (querySnapshot) {
+                if(querySnapshot.docs.length === 0) {
+                  Router.push('/attendeeRegister');
+                  return false;
+                }
+                else {
+                    return true;
+                }
+            })
+            .catch(function (error) {
+                Router.push('/attendeeRegister');
+            });  
+        return res; 
+    }
+
+    async componentDidMount() {
         loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
+                if(!user.email.includes('srmuniv')){
+                  Router.push('/choose');
+                }
                 this.setState({
                     ...this.state,
                     user: user
-                })
+                }, async () => {
+                    if (await this.checkKSDRecords()) {
+                        this.setState({
+                            KSDtested: true
+                        })
+                  } 
+                 })
                 return user
                     .getIdToken()
                     .then(token => {
@@ -167,7 +197,7 @@ class Create extends Component {
       this.FBRef.add({
         ...eventData
       }).then(function (docRef) {
-        window.location = "https://" + window.location.host + '/dashboard';
+        window.location = window.location.protocol + "//" + window.location.host + '/dashboard';
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);
@@ -178,7 +208,7 @@ class Create extends Component {
         const { classes } = this.props;
         return (
           <React.Fragment>
-            {this.state.user !== '' ? (
+            { typeof(this.state.user) !== "string" && this.state.user.email.includes('srmuniv') && this.state.KSDtested !== null ? (
               <React.Fragment>
                 <Navbar
                   page="create"

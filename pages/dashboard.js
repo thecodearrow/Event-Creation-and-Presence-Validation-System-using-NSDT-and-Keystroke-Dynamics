@@ -82,6 +82,7 @@ class Dashboard extends Component {
             upcoming: false,
             passed: false,
             modalOpen:false,
+            KSDtested: null,
             location: '',
             eventName: '',
             eventCode: '',
@@ -181,18 +182,20 @@ class Dashboard extends Component {
     }
 
     async componentDidMount() {
-        let that = this;
         await loadFirebase().auth().onAuthStateChanged(user => {
             if (user) {
+                if(!user.email.includes("srmuniv")){
+                    Router.push('/choose');
+                }
                 this.setState({
                     ...this.state,
                     user: user
                 },
                 async () => {
                     if (await this.checkKSDRecords()) {
-                            this.setState({
-                                KSDtested: true
-                            })
+                        this.setState({
+                            KSDtested: true
+                        })
                     }
                     let eventList =[];
                     await this.FBRef.where("organizer_email","==",this.state.user.email)
@@ -221,7 +224,7 @@ class Dashboard extends Component {
                     })
             } else {
                 //this.handleLogout();
-                window.location = `https://${window.location.host}/`;
+                window.location = window.location.protocol + "//" + window.location.host + "/";
             }
         })
     }
@@ -236,14 +239,20 @@ class Dashboard extends Component {
     }
 
     async checkKSDRecords() {
-        await this.FBRefAtt.where("user", "==", this.state.user.email)
+        const res = await this.FBRefAtt.where("user", "==", this.state.user.email)
             .get().then(function (querySnapshot) {
-                if(querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+                if(querySnapshot.docs.length === 0) {
+                    Router.push('/attendeeRegister');
+                    return false;
+                }
+                else {
+                    return true;
+                }
             })
             .catch(function (error) {
                 Router.push('/attendeeRegister');
             });  
-        return true; 
+        return res; 
     }
 
     successNotify() {   
@@ -412,7 +421,7 @@ class Dashboard extends Component {
         </Modal>);
         return (
           <React.Fragment>
-            {this.state.user !== "" && this.state.KSDtested ? (
+            { typeof(this.state.user) !== "string" && this.state.user.email.includes('srmuniv') && this.state.KSDtested !== null ? (
               <React.Fragment>
                 <Snackbar
                   open={this.state.open}

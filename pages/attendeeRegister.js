@@ -51,28 +51,33 @@ class AttendeeRegister extends Component {
     constructor() {
         super();
 
+        this.FBRef = loadFirebase()
+            .firestore()
+            .collection("attendees");
+
         //TypingDNA instance
         this.tdna=""  
 
-        this.FBRef = loadFirebase()
-          .firestore()
-          .collection("attendees");
+        this.initialText = "Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type";
 
         this.state = {
-            user: '',
-            typingPattern: '',  //the typing pattern of user at time of registration
-            location: '',
-            dateTime: '',
-            hasTyped: false
-    
-        }
+          user: "",
+          typingPattern: "", //the typing pattern of user at time of registration
+          location: "",
+          dateTime: "",
+          hasTyped: false,
+          ksdTest: "",
+          KSDtested: null
+        };
     }
 
     handleChange(e) {
-        this.setState({
-            ...this.state,
-            [e.target.name]: e.target.value
-        })
+        if(!(e.target.value.toLowerCase() !== this.initialText.toLowerCase().substr(0,e.target.value.length))){
+            this.setState({
+                ...this.state,
+                [e.target.name]: e.target.value
+            })
+        }
     }
 
     componentDidMount() {
@@ -84,8 +89,17 @@ class AttendeeRegister extends Component {
                 this.setState({
                     ...this.state,
                     user: user
-                }
-                )
+                }, async () => {
+                    if (await this.checkKSDRecords()) {
+                        this.setState({
+                            KSDtested: true
+                        })
+                    } else {
+                        this.setState({
+                            KSDtested: false
+                        })
+                    }
+                })
                 return user
                     .getIdToken()
                     .then(token => {
@@ -138,6 +152,23 @@ class AttendeeRegister extends Component {
       });
     }
 
+    async checkKSDRecords() {
+        const res = await this.FBRef.where("user", "==", this.state.user.email)
+            .get().then(function (querySnapshot) {
+                if (querySnapshot.docs.length === 1) {
+                    Router.push('/choose');
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            })
+            .catch(function (error) {
+                Router.push('/choose');
+            });
+        return res;
+    }
+
     submitHandler () {
         
         const eventData = {
@@ -170,10 +201,11 @@ class AttendeeRegister extends Component {
 
     render() {
         const { classes } = this.props;
+        const lenTyped = this.state.ksdTest.length;
+        const tester = this.initialText.substr(0, lenTyped).toLowerCase() === this.state.ksdTest.toLowerCase();
         return (
-        
             <React.Fragment>
-            {this.state.user !== '' ? (
+            { (this.state.KSDtested === false && typeof(this.state.user)!=="string") ? (
             <React.Fragment>
                 
                 <Navbar 
@@ -201,11 +233,19 @@ class AttendeeRegister extends Component {
                         </Typography>{" "}
                         <br />
                         <Typography
-                        variant="subtitle2"
+                        variant="h6"
                         className={classes.head}
-                        style={{ color: "midnightblue" }}
                         >
-                        Please ensure you type the way you normally do. By continuing to type further, you provide consent for your current typing pattern to be logged into our database which maybe used to validate your presence in future
+                            <span
+                                style={tester ? { color: "white", backgroundColor: 'midnightblue'} : { color : "midnightblue" }}
+                            >
+                                {this.initialText.substr(0,lenTyped)}
+                            </span>
+                            <span
+                                style={{ color: "midnightblue"}}
+                            >
+                                {this.initialText.substr(lenTyped)}
+                            </span>
                         </Typography>
                         <form
                         className={classes.container}

@@ -163,7 +163,7 @@ class ClassCard extends React.Component {
                 <Button
                   size="small"
                   color="primary"
-                  disabled={this.props.eventStart >= currDate}
+                  // disabled={this.props.eventStart >= currDate}
                   variant="contained"
                   onClick={() => {
                     Router.push(

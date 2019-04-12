@@ -64,17 +64,23 @@ class Analytics extends Component {
         .collection("events");
     this.state = {
         user: '',
-        eventCode: window.location.href.split("/").pop()
+        eventCode: ''
     }
   }
 
   async componentDidMount() {
-    loadFirebase().auth().onAuthStateChanged(user => {
+    const lastBit = window.location.href.split("/").pop();
+    if (lastBit.length < 16){
+        Router.push('/dashboard');
+    } 
+      if (lastBit.length === 20) {
+        await loadFirebase().auth().onAuthStateChanged(user => {
         if (user) {
             this.setState({
-                ...this.state,
-                user: user 
-            })
+              ...this.state,
+              user: user,
+              eventCode: lastBit
+            });
             return user
                 .getIdToken()
                 .then(token => {
@@ -85,24 +91,25 @@ class Analytics extends Component {
                         body: JSON.stringify({ token })
                     })
                 })
-        } else {
-            Router.push('/');
+            } else {
+                Router.push('/');
+            }
+        })
+        await this.FBRef.doc(this.state.eventCode)
+            .get()
+            .then( doc => {
+                this.setState({
+                    eventName: doc.data().eventName,
+                    location: doc.data().location,
+                    endDate: doc.data().endDate,
+                    startDate: doc.data().startDate,
+                    mode: doc.data().mode
+                })
+            })
+            .catch(function (error) {
+                console.log("Error getting documents: ", error);
+            })
         }
-    })
-      await this.FBRef.doc(this.state.eventCode)
-          .get()
-          .then( doc => {
-              this.setState({
-                  eventName: doc.data().eventName,
-                  location: doc.data().location,
-                  endDate: doc.data().endDate,
-                  startDate: doc.data().startDate,
-                  mode: doc.data().mode
-              })
-          })
-          .catch(function (error) {
-              console.log("Error getting documents: ", error);
-          })
   }
 
   handleLogout() {

@@ -57,6 +57,9 @@ class AttendeeVerify extends Component {
 
         this.eCode = ''
 
+        this.initialText =
+          "Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type";
+
         this.FBRef = loadFirebase()
           .firestore()
           .collection("attendees");
@@ -72,15 +75,18 @@ class AttendeeVerify extends Component {
             currentTypingPattern:'',
             attendanceStatus: false,
             buttonActive: false,
-            KSDtested: false
+            ksdTest: "",
+            KSDtested: null
         }
     }
 
     handleChange(e) {
-        this.setState({
-            ...this.state,
-            [e.target.name]: e.target.value
-        })
+        if (!(e.target.value.toLowerCase() !== this.initialText.toLowerCase().substr(0, e.target.value.length))) {
+            this.setState({
+                ...this.state,
+                [e.target.name]: e.target.value
+            })
+        }
     }
 
     async componentDidMount() {
@@ -99,7 +105,7 @@ class AttendeeVerify extends Component {
                         buttonActive: true
                     })
                     if (this.eCode === 'attendeeVerify') {
-                        window.location = "https://" + window.location.host + '/choose';
+                        window.location = window.location.protocol + "//" + window.location.host + '/choose';
                     }
                     if (await this.checkKSDRecords()) {
                         this.setState({
@@ -146,7 +152,7 @@ class AttendeeVerify extends Component {
             }      
         });
         setTimeout(() => {
-            window.location = "https://" + window.location.host + '/choose';
+            window.location = window.location.protocol + "//" + window.location.host + '/choose';
         }, 4000);
 
     }
@@ -198,14 +204,20 @@ class AttendeeVerify extends Component {
     }
 
     async checkKSDRecords() {
-        await this.FBRef.where("user", "==", this.state.user.email)
+        const res = await this.FBRef.where("user", "==", this.state.user.email)
             .get().then(function (querySnapshot) {
-                if (querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+                if (querySnapshot.docs.length === 0) {
+                    Router.push('/attendeeRegister');
+                    return false;
+                }
+                else {
+                    return true;
+                }
             })
             .catch(function (error) {
                 Router.push('/attendeeRegister');
             });
-        return true;
+        return res;
     }
 
     async submitHandler() {
@@ -233,15 +245,17 @@ class AttendeeVerify extends Component {
             console.log("Error getting documents: ", error);
         });
 
-        //Snackbar Notifications => Can be DB failure, Match Failure too... Customise accordingly
+        // Snackbar Notifications => Can be DB failure, Match Failure too... Customise accordingly
         // Have handled Match Failure in  postRequestAndMatchTypingPatterns 
     }
 
     render() {
         const { classes } = this.props;
+        const lenTyped = this.state.ksdTest.length;
+        const tester = this.initialText.substr(0, lenTyped).toLowerCase() === this.state.ksdTest.toLowerCase();
         return (
           <React.Fragment>
-            {this.state.user !== '' && this.state.KSDtested ? (
+            { (typeof(this.state.user) !== "string" && this.state.KSDtested !== null) ? (
             <React.Fragment>
                 <Navbar
                     page="attendeeVerify"
@@ -268,11 +282,19 @@ class AttendeeVerify extends Component {
                         </Typography>{" "}
                         <br />
                         <Typography
-                        variant="subtitle2"
-                        className={classes.head}
-                        style={{ color: "midnightblue" }}
+                            variant="h6"
+                            className={classes.head}
                         >
-                            Please type the way you normally do. This is to ensure that you were physically present during the event and your attendance is being validated as you type
+                            <span
+                                style={tester ? { color: "white", backgroundColor: 'midnightblue' } : { color: "midnightblue" }}
+                            >
+                                {this.initialText.substr(0, lenTyped)}
+                            </span>
+                            <span
+                                style={{ color: "midnightblue" }}
+                            >
+                                {this.initialText.substr(lenTyped)}
+                            </span>
                         </Typography>
                         <form 
                         className={classes.container}

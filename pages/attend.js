@@ -55,7 +55,7 @@ class Attend extends Component {
             user: '',
             eventCode:'',
             formError: false,
-            KSDtested: false
+            KSDtested: null
         }
     }
 
@@ -106,14 +106,20 @@ class Attend extends Component {
     }
 
     async checkKSDRecords() {
-        await this.FBRef.where("user", "==", this.state.user.email)
+        const res = await this.FBRef.where("user", "==", this.state.user.email)
             .get().then(function (querySnapshot) {
-                if (querySnapshot.docs.length === 0) Router.push('/attendeeRegister');
+                if (querySnapshot.docs.length === 0) {
+                    Router.push('/attendeeRegister');
+                    return false;
+                }
+                else {
+                    return true;
+                }
             })
             .catch(function (error) {
                 Router.push('/attendeeRegister');
             });
-        return true;
+        return res;
     }
 
     handleLogout() {
@@ -128,7 +134,7 @@ class Attend extends Component {
         const { classes } = this.props;
         return (
           <React.Fragment>
-            {this.state.user !== '' && this.state.KSDtested ? (
+            { typeof(this.state.user) !== "string" && this.state.KSDtested !== null ? (
             <React.Fragment>
                 <Navbar
                     page="attend"
