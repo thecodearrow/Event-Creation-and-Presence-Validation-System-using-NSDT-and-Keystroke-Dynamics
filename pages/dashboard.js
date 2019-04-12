@@ -19,7 +19,6 @@ import ClassCard from "../components/ClassCard";
 
 import { loadFirebase } from '../lib/firebase_client';
 import Router from 'next/router';
-import { withSnackbar } from "notistack";
 import "firebase/auth";
 import "isomorphic-unfetch";
 import { Typography } from '../node_modules/@material-ui/core';
@@ -247,29 +246,22 @@ class Dashboard extends Component {
         return true; 
     }
 
-    successNotify(eventName) {
-        const message_success = `Successfully Deleted Event:${eventName}`;
-
-        this.props.enqueueSnackbar(message_success, {
-            variant: 'success',
-            anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'center',
-            }
-        });
-
+    successNotify() {   
+        setTimeout( () => {
+            this.setState({
+                formError: "ERROR",
+                open : false
+            })
+        }, 4000);
     }
 
-    failureNotify(eventName) {
-        const message_failure = `Failed to delete ${eventName}`;
-        this.props.enqueueSnackbar(message_failure, {
-            variant: 'error',
-            anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'center',
-            }
-        });
-
+    failureNotify() {
+        setTimeout( () => {
+            this.setState({
+                formError: "ERROR",
+                open: false
+            })
+        }, 4000);
     }
 
     deleteEvent(eventCode) {
@@ -281,14 +273,23 @@ class Dashboard extends Component {
           .delete()
           .then(() => {
               this.setState({
-                eventList : this.state.eventList.filter( el => el.id !== eventToDeleteID)
-              },() => {
-                this.successNotify(eventToDelete[0].data.eventName);
+                eventList : this.state.eventList.filter( el => el.id !== eventToDeleteID),
+                formError: `${eventToDelete[0].data.eventName} Deleted Successfully :D`,
+                open: true
+              }, () => {
+                    this.successNotify();
                 })
             })
           .catch(() => {
-            this.failureNotify(eventToDelete[0].data.eventName);
-          });
+              this.setState({
+                formError: `${
+                  eventToDelete[0].data.eventName
+                } Failed to Delete :(`,
+                open: true
+              },() => {
+                this.failureNotify();
+            })
+        });
     }
 
     openModal(UpdateEventObj){
@@ -315,7 +316,7 @@ class Dashboard extends Component {
     }
 
     handleClose = () => {
-      this.setState({ open: false });
+        this.setState({ open: false });
     };
 
     handleLogout() {
@@ -570,4 +571,4 @@ Dashboard.propTypes = {
     classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(withSnackbar(Dashboard));
+export default withStyles(styles)(Dashboard);
