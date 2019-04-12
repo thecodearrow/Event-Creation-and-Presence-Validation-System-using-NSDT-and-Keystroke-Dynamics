@@ -283,7 +283,7 @@ class Dashboard extends Component {
           .then(() => {
               this.setState({
                 eventList : this.state.eventList.filter( el => el.id !== eventToDeleteID),
-                formError: `${eventToDelete[0].data.eventName} Deleted Successfully :D`,
+                formError: `"${eventToDelete[0].data.eventName}" Deleted Successfully :)`,
                 open: true
               }, () => {
                     this.successNotify();
@@ -291,9 +291,9 @@ class Dashboard extends Component {
             })
           .catch(() => {
               this.setState({
-                formError: `${
+                formError: `"${
                   eventToDelete[0].data.eventName
-                } Failed to Delete :(`,
+                }" Failed to Delete :(`,
                 open: true
               },() => {
                 this.failureNotify();

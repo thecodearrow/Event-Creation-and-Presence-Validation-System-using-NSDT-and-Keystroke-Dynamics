@@ -145,8 +145,8 @@ class Analytics extends Component {
                     gutterBottom
                     className={classes.sub1Header}
                     >
-                    From - {this.state.startDate !== undefined ? new Date(this.state.startDate).toString().substr(0,21):true}<br/> 
-                    To - {this.state.startDate !== undefined ? new Date(this.state.endDate).toString().substr(0,21):true}
+                    From - {this.state.startDate !== undefined ? this.state.startDate.substr(0,17):true}<br/> 
+                    To - {this.state.startDate !== undefined ? this.state.endDate.substr(0,17):true}
                     </Typography>
                     <Typography
                     component="h6"
