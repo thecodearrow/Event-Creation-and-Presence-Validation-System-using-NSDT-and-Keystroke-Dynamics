@@ -1,6 +1,17 @@
 # Major Project - Next.js App
 
 ----
+### For Code Readability:
+ `prettier` has been used. First install `prettier` by running
+
+```
+    npm install --save-dev --save-exact prettier
+    # or globally
+    npm install --global prettier
+```
+
+## PLEASE DO NOT PUSH CODE TO THIS REPO WITHOUT RUNNING `npm run format`
+
 ### Getting Started
 1. ```git clone https://github.com/whitetig3r/chirpNext-event-app.git```  while in a Terminal on macOS or Linux *(OR)* [git bash](https://gitforwindows.org/) on Windows.
 2. `cd chirpNext-event-app` and run `yarn install` or `npm install` to install all dependencies. (depending on the package manager you use).

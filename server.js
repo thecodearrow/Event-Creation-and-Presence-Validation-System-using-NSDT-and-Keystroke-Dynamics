@@ -9,9 +9,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 const https = require('https');
-const fs = require('fs');
 const querystring = require('querystring');
-const { parse } = require('url')
 
 const firebase = admin.initializeApp(
     {

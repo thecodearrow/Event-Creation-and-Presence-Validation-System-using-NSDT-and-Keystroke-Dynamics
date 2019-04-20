@@ -1,17 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
-import { withStyles } from '@material-ui/core/styles';
-import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, TimePicker, DatePicker } from 'material-ui-pickers';
+import React from 'react'
+import PropTypes from 'prop-types'
+import Grid from '@material-ui/core/Grid'
+import { withStyles } from '@material-ui/core/styles'
+import DateFnsUtils from '@date-io/date-fns'
+import {
+  MuiPickersUtilsProvider,
+  TimePicker,
+  DatePicker,
+} from 'material-ui-pickers'
 
 const styles = {
-    grid: {
-        width: '100%',
-        marginLeft: '0.5em',
-        marginRight: '0.5em' 
-    },
-};
+  grid: {
+    width: '100%',
+    marginLeft: '0.5em',
+    marginRight: '0.5em',
+  },
+}
 
 class DateTimePicker extends React.Component {
   state = {
@@ -24,45 +28,41 @@ class DateTimePicker extends React.Component {
     selectedEndDate:
       this.props.eventEndDate === undefined
         ? new Date()
-        : this.props.eventEndDate
-  };
+        : this.props.eventEndDate,
+  }
 
   handleDateChange(i, date) {
     let whichDate =
       i == 1
         ? {
-            selectedStartDate: date
+            selectedStartDate: date,
           }
         : i == 2
         ? {
-            selectedEndDate: date
+            selectedEndDate: date,
           }
         : {
             selectedStartDate: date,
             selectedEndDate: date,
-            selectedEventDate: date
-          };
+            selectedEventDate: date,
+          }
     this.setState(
       {
-        ...whichDate
+        ...whichDate,
       },
       () => {
         this.props.handleDateChange(
           this.state.selectedStartDate,
           this.state.selectedEndDate,
           this.state.selectedEventDate
-        );
+        )
       }
-    );
+    )
   }
 
   render() {
-    const { classes } = this.props;
-    const {
-      selectedEventDate,
-      selectedStartDate,
-      selectedEndDate
-    } = this.state;
+    const { classes } = this.props
+    const { selectedEventDate, selectedStartDate, selectedEndDate } = this.state
 
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -90,12 +90,12 @@ class DateTimePicker extends React.Component {
           />
         </Grid>
       </MuiPickersUtilsProvider>
-    );
+    )
   }
 }
 
 DateTimePicker.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
+  classes: PropTypes.object.isRequired,
+}
 
-export default withStyles(styles)(DateTimePicker);
+export default withStyles(styles)(DateTimePicker)

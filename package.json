@@ -11,6 +11,7 @@
     "dev": "node server.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
+    "format": "prettier --print-width 80 --no-semi --single-quote --trailing-comma es5 --write **/*.js",
     "heroku-postbuild": "npm run build"
   },
   "keywords": [],
@@ -39,5 +40,6 @@
     "session-file-store": "^1.2.0",
     "typeface-roboto": "0.0.54",
     "typingdnaclient": "^1.0.3"
-  }
+  },
+  "devDependencies": {}
 }
