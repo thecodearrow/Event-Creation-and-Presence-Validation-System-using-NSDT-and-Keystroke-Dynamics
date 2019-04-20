@@ -10,7 +10,7 @@
     npm install --global prettier
 ```
 
-## PLEASE DO NOT PUSH CODE TO THIS REPO WITHOUT RUNNING `npm run format`
+#### PLEASE DO NOT PUSH CODE TO THIS REPO WITHOUT RUNNING `npm run format`
 
 ### Getting Started
 1. ```git clone https://github.com/whitetig3r/chirpNext-event-app.git```  while in a Terminal on macOS or Linux *(OR)* [git bash](https://gitforwindows.org/) on Windows.
