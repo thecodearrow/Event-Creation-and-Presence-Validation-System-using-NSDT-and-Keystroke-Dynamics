@@ -13,7 +13,6 @@ import Router from 'next/router'
 import 'firebase/auth'
 import 'isomorphic-unfetch'
 import Loading from '../components/Loading'
-import { isNullOrUndefined } from 'util'
 
 const styles = theme => ({
   head: {
