@@ -1,6 +1,5 @@
 /node_modules
 .next/
 .env
-*firebase*
-/lib
 /https
+/lib

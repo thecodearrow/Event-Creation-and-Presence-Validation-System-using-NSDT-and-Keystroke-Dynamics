@@ -1,6 +1,17 @@
 # Major Project - Next.js App
 
 ----
+### For Code Readability:
+ `prettier` has been used. First install `prettier` by running
+
+```
+    npm install --save-dev --save-exact prettier
+    # or globally
+    npm install --global prettier
+```
+
+#### PLEASE DO NOT PUSH CODE TO THIS REPO WITHOUT RUNNING `npm run format`
+
 ### Getting Started
 1. ```git clone https://github.com/whitetig3r/chirpNext-event-app.git```  while in a Terminal on macOS or Linux *(OR)* [git bash](https://gitforwindows.org/) on Windows.
 2. `cd chirpNext-event-app` and run `yarn install` or `npm install` to install all dependencies. (depending on the package manager you use).
@@ -43,4 +54,6 @@ export function loadFirebase() {
 ```
 
 ##### NOTE:
- To use the ChirpSDK, ensure that you have signed up at [chirp.io](https://chirp.io/) and have added a valid application origin. 
+- To use the TypingDNA API please sign up @ [typingdna.com](https://www.typingdna.com/)
+- To use the HTTPS protocol on the server to simplify permissions on clients, first create a directory named `/https` in the root directory of your project and follow the instruction @ [How to get HTTPS working on your local development environment in 5 minutes](https://medium.freecodecamp.org/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec)
+- To use the ChirpSDK, ensure that you have signed up at [chirp.io](https://chirp.io/) and have added a valid application origin. 

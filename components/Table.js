@@ -1,150 +1,121 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-
-import { loadFirebase } from "../lib/firebase_client";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { withStyles } from '@material-ui/core/styles'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import firebase from 'firebase/app'
+import { loadFirebase } from '../lib/firebase_client'
 
 const styles = theme => ({
-    root: {
-        width: '80vw',
-        marginTop: theme.spacing.unit * 3,
-        overflowX: 'auto'
-    }
-});
-
+  root: {
+    width: '80vw',
+    marginTop: theme.spacing.unit * 3,
+    overflowX: 'auto',
+  },
+})
 
 class StudentTable extends Component {
   constructor() {
-    super();
-    this.FBRef = loadFirebase().firestore().collection('courses');
+    super()
+    this.FBRef = loadFirebase()
+      .firestore()
+      .collection('events')
     this.state = {
-      courses: []
+      eventAttendees: [],
     }
   }
-  
+
   componentDidMount() {
-    this.unsubscribe = this.FBRef.onSnapshot( (snap) => {
-        var courses = [];
-        snap.docChanges().forEach( (docChange,index) => {
-          switch(docChange.type){
-
-            case 'added': {
-              courses.push({
-                id: docChange.doc.id,
-                ...docChange.doc.data()
-              });
-              break;
-            }
-
-            case 'modified': {
-              let localCourseList = this.state.courses;          
-              if(docChange.doc.id === this.props.courseCode){
-                courses = localCourseList.map( course => {
-                  if(course.id === docChange.doc.id){
-                    return {
-                      id: docChange.doc.id,
-                      ...docChange.doc.data()
-                    }
-                  }
-                  return course;
-                })
-              }
-              break;
-            }
-
-            default: {
-              courses = this.state;
-            }
-
-          }
-        }
-      )
-      this.setState({
-        courses
-      })
-    }, err => {
-      console.error(err);
-    })
+    this.unsubscribe = this.FBRef.doc(this.props.eventCode).onSnapshot(
+      snap => {
+        this.setState({
+          eventAttendees: snap.data().attendees,
+        })
+      },
+      err => {
+        console.error(err)
+      }
+    )
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    this.unsubscribe()
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes } = this.props
 
-    let received = this.state.courses.length > 1;
+    let received = this.state.eventAttendees.length > 0
 
-    let courseIndex = this.state.courses.reduce( (reqIndex,course,currIndex,arr) => {
-      if(course.id === this.props.courseCode){
-        return currIndex+reqIndex;
-      }
-      return reqIndex+0;
-    },0)
-    
     return (
-      <Paper className={classes.root}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Register No.</TableCell>
-              <TableCell align="left">Name</TableCell>
-              <TableCell align="left">Present</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            { !received ? (<TableRow />) : this.state.courses[courseIndex].students.map((student, id) => (
-              <TableRow key={id}>
-                <TableCell
-                  style={{
-                    color: student.present[this.props.dayIndex] ? "green" : "red",
-                    textTransform: "uppercase"
-                  }}
-                  component="th"
-                  scope="row"
-                >
-                  {student.register}
-                </TableCell>
-                <TableCell
-                  style={{
-                    color: student.present[this.props.dayIndex] ? "green" : "red",
-                    textTransform: "uppercase"
-                  }}
-                  align="left"
-                >
-                  {student.name}
-                </TableCell>
-                <TableCell
-                  style={{
-                    color: student.present[this.props.dayIndex] ? "green" : "red",
-                    textTransform: "uppercase"
-                  }}
-                  align="left"
-                >
-                  { (String(student.present[this.props.dayIndex]) === 'undefined') ? 
-                      'Waiting' : 
-                      String(student.present[this.props.dayIndex]) 
-                  }
-                </TableCell>
+      <React.Fragment>
+        <Typography variant="h4" align="center">
+          [LIVE!] Attendee Count -{' '}
+          <span style={{ color: 'dodgerblue' }}>
+            {this.state.eventAttendees.length}
+          </span>
+        </Typography>
+        <Paper className={classes.root}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell align="left">Serial No.</TableCell>
+                <TableCell align="left">E-Mail ID</TableCell>
+                <TableCell align="left">Present</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
-    );
+            </TableHead>
+            <TableBody>
+              {!received ? (
+                <TableRow />
+              ) : (
+                this.state.eventAttendees.map((attendee, ind) => (
+                  <TableRow key={ind}>
+                    <TableCell
+                      style={{
+                        color: 'darkred',
+                      }}
+                      align="left"
+                      component="th"
+                      scope="row"
+                    >
+                      {ind + 1}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        color: 'darkblue',
+                      }}
+                      component="th"
+                      scope="row"
+                    >
+                      {attendee}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        textTransform: 'uppercase',
+                        color: 'darkgreen',
+                      }}
+                      align="left"
+                    >
+                      TRUE
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </Paper>
+      </React.Fragment>
+    )
   }
 }
 
-
 StudentTable.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
+  classes: PropTypes.object.isRequired,
+}
 
-export default withStyles(styles)(StudentTable);
+export default withStyles(styles)(StudentTable)

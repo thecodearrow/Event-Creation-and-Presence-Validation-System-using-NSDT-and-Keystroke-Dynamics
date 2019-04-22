@@ -10,6 +10,7 @@ const app = next({ dev })
 const handle = app.getRequestHandler()
 const https = require('https');
 const querystring = require('querystring');
+
 const firebase = admin.initializeApp(
     {
         credential: admin.credential.cert(require('./lib/firebase_server')),
@@ -19,11 +20,9 @@ const firebase = admin.initializeApp(
 )
 const typingDNA = require('./lib/typingDNA_config').typingDNA; 
 
-
 app.prepare()
     .then(() => {
         const server = express()
-
         server.use(bodyParser.json())
         server.use(
             session({
@@ -128,9 +127,9 @@ app.prepare()
             return handle(req, res)
         })
 
-        server.listen(3000, (err) => {
+        server.listen(process.env.PORT, (err) => {
             if (err) throw err
-            console.log('> Ready on http://localhost:3000')
+            console.log(`> Ready on ${process.env.PORT}`)
         })
     })
     .catch((ex) => {
