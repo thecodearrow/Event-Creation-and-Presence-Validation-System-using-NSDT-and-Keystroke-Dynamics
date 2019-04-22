@@ -13,6 +13,7 @@ import Router from 'next/router'
 import 'firebase/auth'
 import 'isomorphic-unfetch'
 import Loading from '../components/Loading'
+import { isNullOrUndefined } from 'util'
 
 const styles = theme => ({
   head: {
@@ -48,9 +49,21 @@ class Login extends Component {
     return { user }
   }
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      user: null,
+    }
+  }
+
   componentDidMount() {
     if (this.props.user) {
-      Router.push('/choose')
+      this.setState(
+        {
+          user: this.props.user,
+        },
+        () => Router.push('/choose')
+      )
     }
     loadFirebase()
       .auth()
@@ -69,12 +82,6 @@ class Login extends Component {
     loadFirebase()
       .auth()
       .signInWithRedirect(provider)
-    loadFirebase()
-      .auth()
-      .getRedirectResult()
-      .then(result => {
-        Router.push('/choose')
-      })
   }
 
   handleLogout() {
@@ -87,7 +94,7 @@ class Login extends Component {
     const { classes } = this.props
     return (
       <React.Fragment>
-        {!this.props.user ? (
+        {!this.state.user && !this.props.user ? (
           <React.Fragment>
             <Navbar page="Login" />
             <Grid
