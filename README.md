@@ -1,4 +1,4 @@
-# Major Project - Next.js App
+# Event Creation and Presence Validation System using NSDT and Keystroke Dynamics - Next.js App
 
 This is our Major Project that can easily be deployed into university classrooms, labs, placement activities, guest lecture events etc.Implemented using React + Next.js , Material-UI and Firebase.
 
