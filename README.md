@@ -1,5 +1,9 @@
 # Major Project - Next.js App
 
+This is our Major Project that can easily be deployed into university classrooms, labs, placement activities, guest lecture events etc.Implemented using React + Next.js , Material-UI and Firebase.
+
+You can check it out here-- https://chirp-next-app.herokuapp.com/
+
 ----
 ### For Code Readability:
  `prettier` has been used. First install `prettier` by running
