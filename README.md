@@ -6,7 +6,7 @@ You can check it out here-- https://chirp-next-app.herokuapp.com/
 
 ### Working Screenshots
 
-![Screenshot](/SoundShinobi.png)
+![Screenshot](https://github.com/thecodearrow/Event-Creation-and-Presence-Validation-System-using-NSDT-and-Keystroke-Dynamics/blob/master/Sound%20Shinobi.png)
 
 
 
