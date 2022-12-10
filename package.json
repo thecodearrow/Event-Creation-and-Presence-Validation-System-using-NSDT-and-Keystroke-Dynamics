@@ -24,7 +24,7 @@
     "body-parser": "^1.18.3",
     "chirpsdk": "^3.0.3",
     "date-fns": "^2.0.0-alpha.27",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-session": "^1.15.6",
     "firebase": "^5.8.1",
     "firebase-admin": "^6.5.1",
